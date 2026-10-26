@@ -1,14 +1,9 @@
-# CHERRY LINE — final consolidation
+CHERRY LINE — correctif ciblé final
 
-Contains the current portfolio HTML, CSS and JavaScript, with `Media/` paths preserved (capital M). Keep your existing `Media/` folder and its filenames unchanged.
+Contient app.js, index.html et styles.css issus de la version consolidée, avec deux corrections ciblées :
+1. Average Rob : le conteneur 9:16 et l’iframe sont superposés dans une seule boîte, sans espace résiduel sous la vidéo.
+2. Sport Content 1 : l’embed utilise le lien YouTube Shorts déjà communiqué pour cette vidéo (ID ZQB1K4hWO2s), au lieu de l’ancien ID.
 
-## Included fixes
-- About carousel locked to a fixed 9:16 frame independent of the adjacent text height.
-- Decorative Hero grid hidden and its HTML node removed.
-- La Conception copy centered in its panel.
-- Average Rob YouTube player constrained to a single 9:16 frame without an extra blank wrapper.
-- Sport Content 3 uses the provided Instagram Reel URL, with a direct link fallback.
-- Existing Sport/School carousel logic and other content retained from the source version.
+Installation : remplacer ces trois fichiers dans le dépôt existant. Conserver le dossier Media/ avec son M majuscule et tous ses fichiers.
 
-## Checks and limits
-JavaScript syntax and ZIP integrity are checked. The original `Media/` folder is intentionally not included; keep it in the repository. Third-party embeds can still be blocked by Instagram/YouTube, browser settings, or network restrictions. Visual behavior on the published GitHub Pages site must be confirmed after deployment; no claim is made that external embeds are guaranteed in every browser.
+Contrôles effectués : syntaxe JavaScript avec node --check, présence des chemins Media/ et intégrité ZIP. La lecture en direct doit encore être vérifiée sur le site publié, car elle dépend aussi de la disponibilité/permissions du lecteur YouTube.

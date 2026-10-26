@@ -43,7 +43,7 @@ const YOUTUBE_MEDIA = {
   journalism1: [{ id:"SLS5mmtpwQY", ratio:"16 / 9", label:"Interview Benitow" }],
   journalism2: [{ id:"lPQAl4Bwrjo", ratio:"9 / 16", label:"Interview Average Rob" }],
   sport1: [
-    { id:"8c1Aws0_E1I", ratio:"9 / 16", label:"Sport Content 1" },
+    { id:"ZQB1K4hWO2s", ratio:"9 / 16", label:"Sport Content 1" },
     { instagramUrl:"https://www.instagram.com/reel/DZDJh-vs02H/", ratio:"9 / 16", label:"Sport Content 3 — Instagram Reel" }
   ],
   school1: [{ id:"RlB6fXD5CFQ", ratio:"9 / 16", label:"School Content vlog" }]
