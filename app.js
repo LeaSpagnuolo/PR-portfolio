@@ -762,8 +762,13 @@ async function renderContentCarousel(box, metaItems, sectionKey){
   box.style.removeProperty("aspect-ratio");
   box.style.removeProperty("width");
   box.style.removeProperty("height");
+  box.style.setProperty("height","auto","important");
+  box.style.setProperty("aspect-ratio","auto","important");
+  box.style.setProperty("overflow","visible","important");
   if(!entries.length){box.classList.add("content-carousel-empty");box.textContent="MEDIA COMING SOON";return;}
   const stage=document.createElement("div");stage.className="content-carousel-stage";
+  const stageHeight=window.innerWidth<600?300:420;
+  stage.style.setProperty("height",`${stageHeight}px`,"important");
   const track=document.createElement("div");track.className="content-carousel-track";
   const prev=document.createElement("button");prev.type="button";prev.className="content-carousel-arrow content-carousel-prev";prev.setAttribute("aria-label","Previous media");prev.textContent="‹";
   const next=document.createElement("button");next.type="button";next.className="content-carousel-arrow content-carousel-next";next.setAttribute("aria-label","Next media");next.textContent="›";
@@ -774,10 +779,10 @@ async function renderContentCarousel(box, metaItems, sectionKey){
   function makeMedia(entry,i){
     const frame=document.createElement("div");frame.className="content-carousel-slide";frame.dataset.index=String(i);
     let src=entry.src;if(entry.file&&!entry.file.legacy)src=URL.createObjectURL(entry.file.blob||entry.file);
-    const applyRatio=(el,w,h)=>{if(!w||!h)return;const ratio=w/h;const stageH=Math.max(220,Math.min(460,window.innerWidth<600?300:420));let height=stageH,width=height*ratio;const maxWidth=Math.max(180,Math.min(window.innerWidth*.78,900));if(width>maxWidth){width=maxWidth;height=width/ratio;}frame.style.width=`${Math.round(width)}px`;frame.style.height=`${Math.round(height)}px`;};
+    const applyRatio=(el,w,h)=>{if(!w||!h)return;const ratio=w/h;const stageH=stageHeight;let height=stageH,width=height*ratio;const maxWidth=Math.max(180,Math.min(window.innerWidth*.78,900));if(width>maxWidth){width=maxWidth;height=width/ratio;}frame.style.width=`${Math.round(width)}px`;frame.style.height=`${Math.round(height)}px`;};
     if(entry.youtubeId || entry.instagramUrl){
       const ratio=entry.ratio||(entry.instagramUrl?"9 / 16":"16 / 9"); const parts=ratio.split("/").map(v=>Number(v.trim())); const rw=parts[0]||16,rh=parts[1]||9;
-      const stageH=Math.max(220,Math.min(460,window.innerWidth<600?300:420)); let height=stageH,width=height*rw/rh;
+      const stageH=stageHeight; let height=stageH,width=height*rw/rh;
       const maxWidth=Math.max(180,Math.min(window.innerWidth*.78,900)); if(width>maxWidth){width=maxWidth;height=width/(rw/rh);}
       frame.style.width=`${Math.round(width)}px`; frame.style.height=`${Math.round(height)}px`; frame.classList.add(entry.instagramUrl?"content-carousel-instagram":"content-carousel-youtube");
       const iframe=document.createElement("iframe"); iframe.className="youtube-embed-frame";
@@ -907,7 +912,7 @@ async function renderAboutCarousel(box,items,sectionKey="about"){
     if(slides.length>1 && nextIndex>=slides.length){index=0;trackIndex=slides.length+1;pendingLoopReset=1;}
     else if(slides.length>1 && nextIndex<0){index=slides.length-1;trackIndex=0;pendingLoopReset=slides.length;}
     else {index=(nextIndex+slides.length)%slides.length;trackIndex=index+1;pendingLoopReset=null;}
-    track.style.transform=`translateX(-${trackIndex*100}%)`;
+    track.style.transform=`translate3d(-${trackIndex*viewport.clientWidth}px,0,0)`;
     slides.forEach((entry,i)=>entry.slide.classList.toggle("is-active",i===index));
     const active=slides[index];
     const img=active.slide.querySelector("img");
@@ -919,12 +924,16 @@ async function renderAboutCarousel(box,items,sectionKey="about"){
   track.addEventListener("transitionend",()=>{
     if(pendingLoopReset===null)return;
     const resetTo=pendingLoopReset;pendingLoopReset=null;
-    track.style.transition="none";track.style.transform=`translateX(-${resetTo*100}%)`;
+    track.style.transition="none";track.style.transform=`translate3d(-${resetTo*viewport.clientWidth}px,0,0)`;
     void track.offsetHeight;track.style.transition="";
   });
-  let swipeStartX=0;
-  viewport.addEventListener("touchstart",e=>{swipeStartX=e.changedTouches[0]?.clientX||0},{passive:true});
-  viewport.addEventListener("touchend",e=>{const dx=(e.changedTouches[0]?.clientX||0)-swipeStartX;if(Math.abs(dx)>40)setActive(index+(dx<0?1:-1));},{passive:true});
+  let swipeStartX=0, swipeStartY=0;
+  viewport.addEventListener("touchstart",e=>{swipeStartX=e.changedTouches[0]?.clientX||0;swipeStartY=e.changedTouches[0]?.clientY||0},{passive:true});
+  viewport.addEventListener("touchend",e=>{const dx=(e.changedTouches[0]?.clientX||0)-swipeStartX;const dy=(e.changedTouches[0]?.clientY||0)-swipeStartY;if(Math.abs(dx)>40&&Math.abs(dx)>Math.abs(dy)*1.2)setActive(index+(dx<0?1:-1));},{passive:true});
+  let pointerStartX=0,pointerStartY=0;
+  viewport.addEventListener("pointerdown",e=>{if(e.pointerType==="mouse"){pointerStartX=e.clientX;pointerStartY=e.clientY;} });
+  viewport.addEventListener("pointerup",e=>{if(e.pointerType!=="mouse")return;const dx=e.clientX-pointerStartX,dy=e.clientY-pointerStartY;if(Math.abs(dx)>40&&Math.abs(dx)>Math.abs(dy)*1.2)setActive(index+(dx<0?1:-1));});
+  window.addEventListener("resize",()=>{track.style.transition="none";setActive(index);void track.offsetHeight;track.style.transition="";});
   setActive(0);
 }
 

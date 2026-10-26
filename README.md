@@ -1,16 +1,15 @@
-# CHERRY LINE — Carousel polish update
+# CHERRY LINE — About + Content carousel correction
 
-This update is based on the existing CHERRY LINE code. It keeps the `Media/` directory name with its uppercase M and does not include or rename any media files.
+This patch is based on the latest available CHERRY LINE code and preserves the `Media/` directory name with uppercase `M`. It does not include, rename, or delete any media files.
 
-## Included changes
-- Removes visible arrow and dot navigation from About, Sport Content, School Content, Spa and 24H carousels.
-- Enables swipe/drag navigation for carousels and adds seamless edge clones for Sport/School and About so wrapping does not visibly animate backwards.
-- Keeps each Sport/School media item at its own intrinsic ratio; portrait videos stay portrait in their frame.
-- Starts local video previews muted and looping so the user can see moving frames instead of a black idle frame where browser playback permits it.
-- Adds muted autoplay/loop parameters to YouTube preview embeds. Browser policies and provider restrictions may still block autoplay or Instagram embeds.
+## Fixes in this patch
+- Restores About carousel movement by sizing its track/slides in pixels and translating by the viewport width, including after resizing.
+- Keeps Sport Content and School Content media at the source's intrinsic aspect ratio; the surrounding frame adds a small outline without cropping or forcing the media into 9:16.
+- Removes clipping caused by a fixed stage height that was shorter than the media frames. Portrait videos remain portrait; landscape media remains landscape.
+- Keeps arrows and dot navigation hidden, preserving swipe/scroll interaction.
 
 ## Install
 Replace `app.js`, `index.html`, and `styles.css` in the existing repository. Keep the existing `Media/` folder and all media filenames unchanged. Commit and wait for GitHub Pages to deploy.
 
-## Validation
-The JavaScript syntax and ZIP integrity are checked. This package has not been visually tested on the published website; external video playback still depends on YouTube/Instagram permissions and browser autoplay policy.
+## Validation and limitation
+JavaScript syntax and ZIP integrity are checked. The published website was not available for a full browser-based visual/playback test. Actual video playback can still depend on the media codec, hosting path, and external provider restrictions.

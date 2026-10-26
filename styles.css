@@ -3866,3 +3866,58 @@ video:-webkit-full-screen { width:auto !important; height:100vh !important; max-
 
 .gallery-arrow, .gallery-dots { display:none !important; }
 .gallery-root, [data-gallery] { touch-action:pan-y; }
+
+/* FINAL PATCH 2026-10-26: preserve native media proportions and restore About swipe. */
+#work .image-placeholder.content-carousel-host[data-media="sport1"],
+#work .image-placeholder.content-carousel-host[data-media="school1"] {
+  height:auto !important; min-height:0 !important; max-height:none !important;
+  aspect-ratio:auto !important; overflow:visible !important;
+}
+.content-carousel-stage {
+  height:420px !important; min-height:0 !important; max-height:none !important;
+  overflow-x:auto !important; overflow-y:visible !important;
+  scroll-snap-type:x mandatory !important; scrollbar-width:none !important;
+  -ms-overflow-style:none !important; background:transparent !important;
+  box-sizing:border-box !important; align-items:center !important;
+}
+.content-carousel-track {
+  display:flex !important; align-items:center !important; height:100% !important;
+  min-height:0 !important; width:max-content !important; min-width:100% !important;
+}
+.content-carousel-slide {
+  position:relative !important; flex-shrink:0 !important; align-self:center !important;
+  max-height:none !important; overflow:visible !important; background:transparent !important;
+  box-sizing:border-box !important; outline:2px solid rgba(102,0,0,.22) !important;
+  outline-offset:3px !important; scroll-snap-align:center !important;
+}
+.content-carousel-slide img,
+.content-carousel-slide video,
+.content-carousel-slide iframe {
+  display:block !important; width:100% !important; height:100% !important;
+  max-width:none !important; max-height:none !important; object-fit:contain !important;
+  background:transparent !important; box-sizing:border-box !important;
+}
+.content-carousel-youtube,
+.content-carousel-instagram { overflow:hidden !important; flex-shrink:0 !important; }
+.content-carousel-youtube .youtube-embed-frame,
+.content-carousel-instagram .youtube-embed-frame { position:absolute !important; inset:0 !important; width:100% !important; height:100% !important; border:0 !important; }
+@media(max-width:599px){.content-carousel-stage{height:300px !important}}
+.about-carousel-host { overflow:hidden !important; }
+.about-carousel-viewport {
+  display:block !important; position:relative !important; width:100% !important;
+  height:100% !important; overflow:hidden !important; touch-action:pan-y !important;
+}
+.about-carousel-track {
+  display:flex !important; flex-wrap:nowrap !important; align-items:stretch !important;
+  width:max-content !important; height:100% !important; min-height:0 !important;
+  transition:transform .32s ease !important; will-change:transform !important;
+}
+.about-carousel-track > .about-carousel-slide {
+  position:relative !important; flex-shrink:0 !important; height:100% !important;
+  min-width:0 !important; max-width:none !important; overflow:hidden !important;
+}
+.about-carousel-track > .about-carousel-slide img,
+.about-carousel-track > .about-carousel-slide video {
+  display:block !important; width:100% !important; height:100% !important;
+  object-fit:cover !important;
+}
