@@ -46,7 +46,8 @@ const YOUTUBE_MEDIA = {
     { id:"ZQB1K4hWO2s", ratio:"9 / 16", label:"Sport Content 1" },
     { instagramUrl:"https://www.instagram.com/reel/DZDJh-vs02H/", ratio:"9 / 16", label:"Sport Content 3 — Instagram Reel" }
   ],
-  school1: [{ id:"RlB6fXD5CFQ", ratio:"9 / 16", label:"School Content vlog" }]
+  school1: [{ id:"RlB6fXD5CFQ", ratio:"9 / 16", label:"School Content vlog" }],
+  w2w: [{ id:"Qc660Zu_hZI", ratio:"16 / 9", label:"Women2Women Boston" }]
 };
 
 
@@ -725,36 +726,41 @@ function bindSkillsEditor(){
 async function renderContentCarousel(box, metaItems, sectionKey){
   const staticPaths=STATIC_MEDIA[sectionKey]||[];
   const entries=[];
-  if(metaItems.length){
-    for(const meta of metaItems.slice(0,20)){
+  const hosted=(YOUTUBE_MEDIA[sectionKey]||[]);
+  const hostedBySlot = sectionKey === "sport1" ? {0:hosted.find(x=>x.id),2:hosted.find(x=>x.instagramUrl)} : {};
+  const sourceCount = metaItems.length ? Math.min(metaItems.length,20) : Math.min(staticPaths.length,20);
+  // Replace Sport Content 1 and 3 at their original positions. Do not append a second
+  // copy of hosted items after loading the saved/local files (that created duplicates).
+  for(let i=0;i<sourceCount;i++){
+    if(hostedBySlot[i]){
+      const h=hostedBySlot[i];
+      entries.push(h.instagramUrl
+        ? {instagramUrl:h.instagramUrl,ratio:h.ratio||"9 / 16",label:h.label,meta:{format:"Original",customRatio:""}}
+        : {youtubeId:h.id,ratio:h.ratio||"9 / 16",label:h.label,meta:{format:"Original",customRatio:""}});
+      continue;
+    }
+    if(metaItems.length){
+      const meta=metaItems[i];
       try{
         const pending=pendingMediaFiles[mediaStorageKey(sectionKey,meta.id)];
         const file=pending ? {blob:pending,type:isVideoFile(pending)?"video":"image"} : await getManagedMedia(sectionKey,meta.id,meta);
         if(file) entries.push({meta:{...meta,format:"Original",customRatio:""},file,src:file.legacy?file.src:null});
       }catch(err){console.error("CHERRY LINE content carousel media read error",sectionKey,meta.id,err)}
-    }
-  }
-  if(!entries.length){
-    for(const path of staticPaths.slice(0,20)){
+    }else{
+      const path=staticPaths[i];
       const isVideo=/\.(mp4|mov|webm|m4v)$/i.test(path);
-      // Sport Content 1 and 3 are hosted on YouTube, so don't load their large local copies.
-      if(sectionKey==="sport1" && (/Sportcontent1\.mov$/i.test(path) || /Sportcontent3\.mov$/i.test(path))) continue;
       const loaded=await checkStaticMedia(path,isVideo);
       if(loaded) entries.push({path,isVideo,meta:{format:"Original",customRatio:""}});
     }
   }
-  // The corresponding Sport Content 1 and 3 local files are replaced by their YouTube versions.
-  if(sectionKey==="sport1"){
-    for(let i=entries.length-1;i>=0;i--){
-      const name=String(entries[i].meta?.name||entries[i].meta?.filename||entries[i].meta?.src||entries[i].path||"");
-      if(/sportcontent[13]\.(mov|mp4|webm|m4v)$/i.test(name)) entries.splice(i,1);
-    }
-  }
-  // Add hosted videos to the carousel while preserving each video's native orientation.
-  for(const hosted of (YOUTUBE_MEDIA[sectionKey]||[])){
-    if(hosted.instagramUrl){
-      if(!entries.some(entry=>entry.instagramUrl===hosted.instagramUrl)) entries.push({instagramUrl:hosted.instagramUrl,ratio:hosted.ratio||"9 / 16",label:hosted.label,meta:{format:"Original",customRatio:""}});
-    }else if(!entries.some(entry=>entry.youtubeId===hosted.id)) entries.push({youtubeId:hosted.id,ratio:hosted.ratio,label:hosted.label,meta:{format:"Original",customRatio:""}});
+  // Deduplicate only true repeats of the same source, not different files that happen
+  // to have similar names. This also protects against old editor saves with duplicates.
+  const seenSources=new Set();
+  for(let i=entries.length-1;i>=0;i--){
+    const e=entries[i];
+    const sourceName=String(e.file?.name||e.meta?.name||e.meta?.filename||e.meta?.src||"").trim().toLowerCase();
+    const key=e.youtubeId?`yt:${e.youtubeId}`:e.instagramUrl?`ig:${e.instagramUrl}`:e.path?`path:${e.path}`:sourceName?`name:${sourceName}`:e.meta?.id!=null?`meta:${e.meta.id}`:null;
+    if(key && seenSources.has(key)) entries.splice(i,1); else if(key) seenSources.add(key);
   }
   box.innerHTML="";
   box.classList.add("content-carousel-host","media-managed-host");
@@ -779,12 +785,12 @@ async function renderContentCarousel(box, metaItems, sectionKey){
   function makeMedia(entry,i){
     const frame=document.createElement("div");frame.className="content-carousel-slide";frame.dataset.index=String(i);
     let src=entry.src;if(entry.file&&!entry.file.legacy)src=URL.createObjectURL(entry.file.blob||entry.file);
-    const applyRatio=(el,w,h)=>{if(!w||!h)return;const ratio=w/h;const stageH=stageHeight;let height=stageH,width=height*ratio;const maxWidth=Math.max(180,Math.min(window.innerWidth*.78,900));if(width>maxWidth){width=maxWidth;height=width/ratio;}frame.style.width=`${Math.round(width)}px`;frame.style.height=`${Math.round(height)}px`;};
+    const applyRatio=(el,w,h)=>{if(!w||!h)return;const ratio=w/h;const stageH=stageHeight;let height=stageH,width=height*ratio;const maxWidth=Math.max(180,Math.min(window.innerWidth*.78,900));if(width>maxWidth){width=maxWidth;height=width/ratio;}frame.style.width=`${Math.round(width)}px`;frame.style.height=`${Math.round(height)}px`;frame.style.aspectRatio=`${w} / ${h}`;frame.style.setProperty("--media-ratio",`${w} / ${h}`);};
     if(entry.youtubeId || entry.instagramUrl){
       const ratio=entry.ratio||(entry.instagramUrl?"9 / 16":"16 / 9"); const parts=ratio.split("/").map(v=>Number(v.trim())); const rw=parts[0]||16,rh=parts[1]||9;
       const stageH=stageHeight; let height=stageH,width=height*rw/rh;
       const maxWidth=Math.max(180,Math.min(window.innerWidth*.78,900)); if(width>maxWidth){width=maxWidth;height=width/(rw/rh);}
-      frame.style.width=`${Math.round(width)}px`; frame.style.height=`${Math.round(height)}px`; frame.classList.add(entry.instagramUrl?"content-carousel-instagram":"content-carousel-youtube");
+      frame.style.width=`${Math.round(width)}px`; frame.style.height=`${Math.round(height)}px`; frame.style.aspectRatio=`${rw} / ${rh}`; frame.style.setProperty("--media-ratio",`${rw} / ${rh}`); frame.classList.add(entry.instagramUrl?"content-carousel-instagram":"content-carousel-youtube");
       const iframe=document.createElement("iframe"); iframe.className="youtube-embed-frame";
       iframe.src=entry.instagramUrl?`${entry.instagramUrl.replace(/\/$/,"")}/embed`:`https://www.youtube-nocookie.com/embed/${entry.youtubeId}?playsinline=1&rel=0&autoplay=1&mute=1&controls=0&loop=1&playlist=${entry.youtubeId}`; iframe.title=entry.label||"Embedded video"; iframe.loading="eager";
       iframe.allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"; iframe.allowFullscreen=true; iframe.referrerPolicy="strict-origin-when-cross-origin";

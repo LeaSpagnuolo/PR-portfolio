@@ -3921,3 +3921,49 @@ video:-webkit-full-screen { width:auto !important; height:100vh !important; max-
   display:block !important; width:100% !important; height:100% !important;
   object-fit:cover !important;
 }
+
+
+/* CHERRY LINE patch 2026-10-26: native content ratios, no crop/zoom. */
+#work [data-media="sport1"].content-carousel-host,
+#work [data-media="school1"].content-carousel-host {
+  width:100% !important; max-width:100% !important; height:auto !important;
+  min-height:0 !important; max-height:none !important; aspect-ratio:auto !important;
+  overflow:visible !important;
+}
+#work .content-carousel-stage {
+  height:440px !important; min-height:0 !important; max-height:none !important;
+  display:flex !important; align-items:center !important; overflow-x:auto !important;
+  overflow-y:hidden !important; scroll-snap-type:x mandatory !important;
+  scrollbar-width:none !important; background:transparent !important;
+}
+#work .content-carousel-slide {
+  position:relative !important; flex:0 0 auto !important;
+  max-width:calc(100vw - 48px) !important; max-height:440px !important;
+  overflow:visible !important; box-sizing:border-box !important;
+  outline:1px solid rgba(102,0,0,.28) !important; outline-offset:4px !important;
+  background:transparent !important; scroll-snap-align:center !important;
+}
+#work .content-carousel-slide > img,
+#work .content-carousel-slide > video,
+#work .content-carousel-slide > iframe,
+#work .content-carousel-slide .youtube-embed-frame {
+  display:block !important; width:100% !important; height:100% !important;
+  max-width:none !important; max-height:none !important; object-fit:contain !important;
+  object-position:center center !important; border:0 !important; background:transparent !important;
+}
+#work .content-carousel-youtube, #work .content-carousel-instagram {
+  aspect-ratio:var(--media-ratio, 9 / 16) !important; overflow:hidden !important;
+}
+#work .content-carousel-youtube .youtube-embed-frame,
+#work .content-carousel-instagram .youtube-embed-frame {
+  position:absolute !important; inset:0 !important; aspect-ratio:inherit !important;
+}
+@media(max-width:599px) {
+  #work .content-carousel-stage { height:320px !important; }
+  #work .content-carousel-slide { max-height:320px !important; max-width:calc(100vw - 36px) !important; }
+}
+/* Keep enlarged native video players at their intrinsic ratio. */
+video:fullscreen, video:-webkit-full-screen {
+  width:100vw !important; height:100vh !important; max-width:100vw !important; max-height:100vh !important;
+  aspect-ratio:auto !important; object-fit:contain !important; background:#000 !important;
+}

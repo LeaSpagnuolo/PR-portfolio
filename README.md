@@ -1,15 +1,19 @@
-# CHERRY LINE — About + Content carousel correction
+# CHERRY LINE — W2W & Content carousel correction
 
-This patch is based on the latest available CHERRY LINE code and preserves the `Media/` directory name with uppercase `M`. It does not include, rename, or delete any media files.
+This patch updates the existing static site files only. Keep your existing `Media/` folder (uppercase M) and all of its contents unchanged.
 
-## Fixes in this patch
-- Restores About carousel movement by sizing its track/slides in pixels and translating by the viewport width, including after resizing.
-- Keeps Sport Content and School Content media at the source's intrinsic aspect ratio; the surrounding frame adds a small outline without cropping or forcing the media into 9:16.
-- Removes clipping caused by a fixed stage height that was shorter than the media frames. Portrait videos remain portrait; landscape media remains landscape.
-- Keeps arrows and dot navigation hidden, preserving swipe/scroll interaction.
+## Included fixes
+- Women2Women uses the supplied YouTube video ID `Qc660Zu_hZI` in a landscape 16:9 embed rather than relying on the local `Media/W2W.mp4` playback.
+- Sport Content 1 and 3 are substituted in their original carousel slots instead of being appended a second time.
+- School Content no longer receives an extra appended hosted vlog on top of the local media list.
+- Content slides use the loaded media's native width/height ratio, `object-fit: contain`, and a thin outline that sits just outside the media instead of cropping it.
+- Video fullscreen keeps the media contained within the screen while preserving its native proportions.
 
 ## Install
-Replace `app.js`, `index.html`, and `styles.css` in the existing repository. Keep the existing `Media/` folder and all media filenames unchanged. Commit and wait for GitHub Pages to deploy.
+1. Unzip this archive.
+2. Replace `app.js`, `index.html`, and `styles.css` in your existing GitHub repository.
+3. Do not replace, rename, or upload over your existing `Media/` folder.
+4. Commit and wait for GitHub Pages to redeploy.
 
-## Validation and limitation
-JavaScript syntax and ZIP integrity are checked. The published website was not available for a full browser-based visual/playback test. Actual video playback can still depend on the media codec, hosting path, and external provider restrictions.
+## Validation
+`app.js` passes `node --check`, and the ZIP archive passes integrity testing. External YouTube/Instagram playback still depends on the platform's embed permissions and the published site/browser; it cannot be fully verified offline.
