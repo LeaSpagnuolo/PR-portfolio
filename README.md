@@ -1,9 +1,16 @@
-CHERRY LINE — correctif ciblé final
+# CHERRY LINE — Carousel polish update
 
-Contient app.js, index.html et styles.css issus de la version consolidée, avec deux corrections ciblées :
-1. Average Rob : le conteneur 9:16 et l’iframe sont superposés dans une seule boîte, sans espace résiduel sous la vidéo.
-2. Sport Content 1 : l’embed utilise le lien YouTube Shorts déjà communiqué pour cette vidéo (ID ZQB1K4hWO2s), au lieu de l’ancien ID.
+This update is based on the existing CHERRY LINE code. It keeps the `Media/` directory name with its uppercase M and does not include or rename any media files.
 
-Installation : remplacer ces trois fichiers dans le dépôt existant. Conserver le dossier Media/ avec son M majuscule et tous ses fichiers.
+## Included changes
+- Removes visible arrow and dot navigation from About, Sport Content, School Content, Spa and 24H carousels.
+- Enables swipe/drag navigation for carousels and adds seamless edge clones for Sport/School and About so wrapping does not visibly animate backwards.
+- Keeps each Sport/School media item at its own intrinsic ratio; portrait videos stay portrait in their frame.
+- Starts local video previews muted and looping so the user can see moving frames instead of a black idle frame where browser playback permits it.
+- Adds muted autoplay/loop parameters to YouTube preview embeds. Browser policies and provider restrictions may still block autoplay or Instagram embeds.
 
-Contrôles effectués : syntaxe JavaScript avec node --check, présence des chemins Media/ et intégrité ZIP. La lecture en direct doit encore être vérifiée sur le site publié, car elle dépend aussi de la disponibilité/permissions du lecteur YouTube.
+## Install
+Replace `app.js`, `index.html`, and `styles.css` in the existing repository. Keep the existing `Media/` folder and all media filenames unchanged. Commit and wait for GitHub Pages to deploy.
+
+## Validation
+The JavaScript syntax and ZIP integrity are checked. This package has not been visually tested on the published website; external video playback still depends on YouTube/Instagram permissions and browser autoplay policy.
