@@ -4006,3 +4006,68 @@ video:fullscreen, video:-webkit-full-screen {
   #work .content-carousel-stage { height:330px !important; }
   #work .content-carousel-slide { max-width:calc(100vw - 24px) !important; }
 }
+
+
+/* CHERRY LINE FINAL ART DIRECTION — 2026-10-27 */
+/* Sport + School: three media maximum, native ratios, active center only. */
+#work .image-placeholder.content-carousel-host[data-media="sport1"],
+#work .image-placeholder.content-carousel-host[data-media="school1"]{
+  width:100%!important;max-width:100%!important;height:auto!important;min-height:0!important;
+  margin:28px auto 34px!important;padding:0!important;overflow:visible!important;aspect-ratio:auto!important;
+  background:transparent!important;border:0!important;display:block!important;
+}
+#work .content-carousel-stage{
+  position:relative!important;display:block!important;width:100%!important;height:480px!important;min-height:0!important;max-height:none!important;
+  padding:0!important;margin:0!important;overflow:hidden!important;overflow-x:hidden!important;overflow-y:hidden!important;
+  background:linear-gradient(180deg,rgba(30,25,25,.025),rgba(30,25,25,0))!important;scroll-snap-type:none!important;touch-action:pan-y!important;cursor:grab!important;
+}
+#work .content-carousel-stage:active{cursor:grabbing!important}
+#work .content-carousel-track{display:block!important;position:relative!important;width:100%!important;height:100%!important;min-width:0!important;padding:0!important;margin:0!important;overflow:visible!important}
+#work .content-carousel-slide{
+  position:absolute!important;display:flex!important;align-items:center!important;justify-content:center!important;
+  inset:auto!important;max-width:none!important;max-height:none!important;min-width:0!important;min-height:0!important;
+  padding:0!important;margin:0!important;box-sizing:border-box!important;overflow:hidden!important;
+  border:1px solid rgba(102,0,0,.2)!important;outline:0!important;outline-offset:0!important;border-radius:3px!important;
+  background:#151313!important;box-shadow:0 12px 32px rgba(20,10,10,.12)!important;
+  transition:left .42s cubic-bezier(.22,.7,.2,1),top .42s cubic-bezier(.22,.7,.2,1),width .42s cubic-bezier(.22,.7,.2,1),height .42s cubic-bezier(.22,.7,.2,1),transform .42s cubic-bezier(.22,.7,.2,1),opacity .3s ease!important;
+  transform-origin:center center!important;
+}
+#work .content-carousel-slide.is-active{box-shadow:0 18px 42px rgba(20,10,10,.22)!important;border-color:rgba(102,0,0,.5)!important}
+#work .content-carousel-slide img,#work .content-carousel-slide video,#work .content-carousel-slide iframe{
+  display:block!important;width:100%!important;height:100%!important;max-width:100%!important;max-height:100%!important;
+  object-fit:contain!important;object-position:center!important;background:#151313!important;border:0!important;
+}
+#work .content-carousel-slide.is-hidden{display:none!important;visibility:hidden!important}
+#work .content-carousel-counter,#work .content-carousel-dots,#work .content-carousel-arrow{display:none!important}
+#work .content-carousel-external-link{position:absolute;z-index:5;bottom:8px;left:50%;transform:translateX(-50%);padding:6px 10px;border-radius:20px;background:rgba(0,0,0,.75);color:#fff;font:10px var(--mono,monospace);white-space:nowrap;text-decoration:none}
+#work .content-carousel-slide.needs-play::after{content:"TAP TO PLAY WITH SOUND";position:absolute;z-index:6;left:50%;bottom:12px;transform:translateX(-50%);padding:7px 10px;background:rgba(0,0,0,.78);color:white;font:10px var(--mono,monospace);white-space:nowrap;pointer-events:none}
+@media(max-width:850px){#work .content-carousel-stage{height:420px!important}}
+@media(max-width:560px){#work .content-carousel-stage{height:350px!important}#work .content-carousel-slide{border-radius:2px!important}}
+
+/* About: four real slides, automatic rotation, clickable dots directly underneath. */
+#about.about-layout > .about-media-primary > .about-carousel-host{
+  position:relative!important;display:block!important;width:min(100%,380px)!important;max-width:380px!important;height:auto!important;
+  aspect-ratio:9/16!important;min-height:0!important;max-height:none!important;overflow:hidden!important;padding:0 0 26px!important;
+  box-sizing:border-box!important;border:0!important;background:transparent!important;
+}
+#about .about-carousel-viewport{position:relative!important;display:block!important;width:100%!important;height:calc(100% - 26px)!important;overflow:hidden!important;aspect-ratio:auto!important;}
+#about .about-carousel-track{display:flex!important;flex-wrap:nowrap!important;align-items:stretch!important;width:max-content!important;height:100%!important;min-width:0!important;transition:transform .55s cubic-bezier(.22,.7,.2,1)!important;will-change:transform!important;}
+#about .about-carousel-slide{position:relative!important;flex:0 0 auto!important;width:var(--about-slide-width,100%)!important;min-width:var(--about-slide-width,100%)!important;height:100%!important;min-height:0!important;overflow:hidden!important;background:#171515!important;}
+#about .about-carousel-slide img,#about .about-carousel-slide video{display:block!important;width:100%!important;height:100%!important;object-fit:cover!important;object-position:center!important;}
+#about .about-carousel-dots{position:absolute!important;display:flex!important;justify-content:center!important;align-items:center!important;gap:8px!important;left:50%!important;bottom:4px!important;transform:translateX(-50%)!important;width:max-content!important;z-index:10!important;}
+#about .about-carousel-dots button{display:block!important;width:7px!important;height:7px!important;min-width:7px!important;min-height:7px!important;padding:0!important;border:1px solid #660000!important;border-radius:50%!important;background:transparent!important;cursor:pointer!important;}
+#about .about-carousel-dots button.active{background:#660000!important;transform:scale(1.15)!important}
+#about .about-carousel-arrow{display:none!important}
+@media(max-width:850px){#about.about-layout > .about-media-primary > .about-carousel-host{width:min(100%,320px)!important;max-width:320px!important;aspect-ratio:9/16!important;margin-inline:auto!important}}
+
+/* Motorsport galleries: refined manual carousel; never advances without the visitor. */
+.photo-gallery{position:relative!important;overflow:hidden!important;border-radius:4px!important;background:#141212!important;}
+.photo-gallery .gallery-track{position:relative!important;display:block!important;overflow:hidden!important;}
+.photo-gallery .gallery-slide{position:absolute!important;inset:0!important;display:flex!important;align-items:center!important;justify-content:center!important;opacity:0!important;visibility:hidden!important;transition:opacity .38s ease,transform .5s cubic-bezier(.22,.7,.2,1)!important;transform:scale(.985)!important;}
+.photo-gallery .gallery-slide.active{position:relative!important;opacity:1!important;visibility:visible!important;transform:scale(1)!important;z-index:2!important;}
+.photo-gallery .gallery-slide img,.photo-gallery .gallery-slide video{display:block!important;width:100%!important;height:100%!important;object-fit:contain!important;object-position:center!important;}
+.photo-gallery .gallery-dots{display:flex!important;justify-content:center!important;gap:7px!important;padding:12px 0 4px!important;}
+.photo-gallery .gallery-dot{width:7px!important;height:7px!important;padding:0!important;border-radius:50%!important;border:1px solid #660000!important;background:transparent!important;cursor:pointer!important;}
+.photo-gallery .gallery-dot.active{background:#660000!important}
+.photo-gallery .gallery-prev,.photo-gallery .gallery-next{transition:background .2s ease,transform .2s ease!important;}
+.photo-gallery .gallery-prev:hover,.photo-gallery .gallery-next:hover{background:#660000!important;transform:translateY(-50%) scale(1.05)!important;}
