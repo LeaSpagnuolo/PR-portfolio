@@ -4071,3 +4071,22 @@ video:fullscreen, video:-webkit-full-screen {
 .photo-gallery .gallery-dot.active{background:#660000!important}
 .photo-gallery .gallery-prev,.photo-gallery .gallery-next{transition:background .2s ease,transform .2s ease!important;}
 .photo-gallery .gallery-prev:hover,.photo-gallery .gallery-next:hover{background:#660000!important;transform:translateY(-50%) scale(1.05)!important;}
+
+
+/* Audio-safe content carousel: only the active center can play or accept sound input. */
+#work .content-carousel-slide .content-carousel-sound-button{
+  position:absolute!important;z-index:20!important;left:50%!important;bottom:12px!important;transform:translateX(-50%)!important;
+  display:block!important;max-width:calc(100% - 20px)!important;padding:9px 13px!important;
+  border:1px solid rgba(255,255,255,.68)!important;border-radius:2px!important;
+  background:rgba(18,16,16,.88)!important;color:#fff!important;
+  font:10px/1.2 var(--mono,monospace)!important;letter-spacing:.06em!important;white-space:nowrap!important;
+  cursor:pointer!important;box-shadow:0 3px 14px rgba(0,0,0,.2)!important;
+}
+#work .content-carousel-slide:not(.is-active) .content-carousel-sound-button{display:none!important}
+#work .content-carousel-slide:not(.is-active) iframe,
+#work .content-carousel-slide:not(.is-active) video{pointer-events:none!important}
+#work .content-carousel-slide.is-active .content-carousel-sound-button{opacity:1!important}
+#work .content-carousel-slide.sound-activated .content-carousel-sound-button{opacity:.0!important;pointer-events:none!important}
+#work .content-carousel-slide > iframe,
+#work .content-carousel-slide .youtube-embed-frame{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;display:block!important}
+#work .content-carousel-slide > video{position:relative!important;z-index:1!important;width:100%!important;height:100%!important;object-fit:contain!important;background:#151313!important}

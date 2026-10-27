@@ -1,21 +1,24 @@
-# CHERRY LINE — Carousel polish update
+# CHERRY LINE — Content audio control fix
 
-This update uses the existing static `Media/` folder (capital M). It does not include or rename your media files.
+This patch is based on the latest available CHERRY LINE bundle. It preserves the `Media/` folder name with a capital M and does not include, rename, or replace media files.
 
-## Changes
-- Sport Content and School Content show at most three distinct media: one centered active item and one smaller preview on each side.
-- Only the centered video/embedded player is activated. Side videos are paused and external embeds are unloaded when they move off-center.
-- Media dimensions follow each source's native ratio; portrait videos remain portrait, landscape videos remain landscape, with no forced 16:9 crop.
-- The active center video attempts to play with sound. Browsers can block sound-on autoplay; if that happens, the center video remains available for a click/tap.
-- About displays all four photo slots as a carousel, rotates automatically, and has clickable dots underneath.
-- Motorsport galleries no longer advance automatically; users can take as long as they want and navigate with the existing controls, dots, or swipe. Inactive videos are paused.
-- The existing `Media/` capitalization and the rest of the site files are preserved.
+## Sport Content and School Content
+- The carousel shows no more than three cards: one central active item, one preview on the left, and one preview on the right.
+- Local videos in the center start muted. Use **ACTIVATE SOUND** to restart that video from 00:00 with sound. The sound button is hidden on side previews.
+- When a local video leaves the center, it is paused, muted, and reset to the beginning.
+- YouTube embeds start muted in the center. **ACTIVATE SOUND** reloads the active video from the beginning with sound enabled. When the item leaves the center, its iframe is unloaded to stop playback/audio.
+- Instagram Reels use an external link because Instagram does not reliably support controlled autoplay/mute behavior inside a third-party carousel.
+- Media frames use the actual source ratio (portrait remains portrait, landscape remains landscape) rather than forcing everything to 16:9.
+
+## About
+- Four photos remain in the carousel with automatic rotation every 4.5 seconds.
+- Dots underneath let the visitor select a photo directly; hovering/focusing pauses automatic rotation.
 
 ## Install
 1. Extract the ZIP.
 2. Replace `app.js`, `index.html`, and `styles.css` in the existing GitHub repository.
-3. Leave the `Media/` folder untouched.
+3. Keep the `Media/` folder intact.
 4. Commit and wait for GitHub Pages to deploy.
 
-## Validation
-JavaScript syntax and ZIP integrity are checked. The published site was not available for browser-level visual testing in this session. Sound-on autoplay is controlled by browser policy and may require a click/tap on the first video.
+## Validation and limits
+JavaScript syntax (`node --check`) and ZIP integrity were checked. The live site was not tested in a browser in this session. Browser policies can block autoplay; if that happens, use the visible sound/play control. Embedded YouTube and Instagram behavior can also depend on provider settings.
