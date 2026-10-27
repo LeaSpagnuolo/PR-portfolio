@@ -808,7 +808,7 @@ async function renderContentCarousel(box, metaItems, sectionKey){
     slides.forEach((slide,i)=>{
       const active=i===index,prev=i===(index-1+slides.length)%slides.length&&slides.length>1,next=i===(index+1)%slides.length&&slides.length>1;
       slide.classList.toggle("is-active",active);slide.classList.toggle("is-prev",prev);slide.classList.toggle("is-next",next);slide.classList.toggle("is-hidden",!active&&!prev&&!next);
-      slide.style.visibility=active||prev||next?"visible":"hidden";slide.style.pointerEvents=active?"auto":"none";slide.style.opacity=active?"1":".58";slide.style.zIndex=active?"3":"1";
+      slide.style.visibility=active||prev||next?"visible":"hidden";slide.style.pointerEvents=active||prev||next?"auto":"none";slide.style.cursor=!active&&(prev||next)?"pointer":"default";slide.style.opacity=active?"1":".76";slide.style.zIndex=active?"3":"1";
       const video=slide.querySelector("video");
       if(video){if(active){video.controls=false;video.muted=!slide.classList.contains("sound-activated");video.defaultMuted=video.muted;const p=video.play();if(p&&p.catch)p.catch(()=>{slide.classList.add("needs-play");});}else{video.pause();video.muted=true;video.defaultMuted=true;video.controls=false;try{video.currentTime=0;}catch(_){}slide.classList.remove("sound-activated");const button=slide.querySelector(".content-carousel-sound-button");if(button)button.textContent="ACTIVATE SOUND";}}
       const iframe=slide.querySelector("iframe");if(iframe){if(active){if(iframe.src!==iframe.dataset.embedUrl&& !slide.classList.contains("sound-activated"))iframe.src=iframe.dataset.embedUrl;}else if(iframe.src&&iframe.src!=="about:blank"){iframe.src="about:blank";slide.classList.remove("sound-activated");const button=slide.querySelector(".content-carousel-sound-button");if(button){button.textContent=slide.classList.contains("content-carousel-instagram")?"OPEN VIDEO WITH SOUND ↗":"ACTIVATE SOUND";button.disabled=false;}}}
@@ -825,10 +825,10 @@ async function renderContentCarousel(box, metaItems, sectionKey){
     slides.forEach((slide,i)=>{
       if(slide.classList.contains("is-hidden")){slide.style.visibility="hidden";return;}
       const isActive=i===index,isPrev=slide.classList.contains("is-prev"),isNext=slide.classList.contains("is-next");
-      const sideSize=isActive?activeSize:fit(slide,Math.min(sw*.235,260),sh*.72);let left=center-sideSize.width/2,scale=.88;
+      const sideSize=isActive?activeSize:fit(slide,Math.min(sw*.30,320),sh*.80);let left=center-sideSize.width/2,scale=.94;
       if(isActive){left=center-activeSize.width/2;scale=1;}
-      else if(isPrev){left=center-activeSize.width/2-gap-sideSize.width;scale=.84;}
-      else if(isNext){left=center+activeSize.width/2+gap;scale=.84;}
+      else if(isPrev){left=center-activeSize.width/2-gap-sideSize.width;scale=.92;}
+      else if(isNext){left=center+activeSize.width/2+gap;scale=.92;}
       // Keep the three-card composition visible even when a landscape media is in the center.
       left=Math.max(2,Math.min(sw-sideSize.width-2,left));
       slide.style.setProperty("left",`${Math.round(left)}px`,`important`);slide.style.setProperty("top","50%","important");slide.style.setProperty("transform",`translateY(-50%) scale(${scale})`,`important`);slide.style.setProperty("z-index",isActive?"3":"1","important");
@@ -841,6 +841,7 @@ async function renderContentCarousel(box, metaItems, sectionKey){
   let pointerX=0,pointerY=0;stage.addEventListener("pointerdown",e=>{if(e.pointerType==="mouse"){pointerX=e.clientX;pointerY=e.clientY;}});
   stage.addEventListener("pointerup",e=>{if(e.pointerType!=="mouse")return;const dx=e.clientX-pointerX,dy=e.clientY-pointerY;if(Math.abs(dx)>35&&Math.abs(dx)>Math.abs(dy)*1.15)go(dx<0?1:-1);});
   stage.addEventListener("click",e=>{if(e.target.closest(".content-carousel-sound-button"))return;const slide=e.target.closest(".content-carousel-slide");if(!slide)return;const n=Number(slide.dataset.index);if(Number.isInteger(n)&&n!==index)go(n-index);});
+  stage.addEventListener("keydown",e=>{if(e.key==="ArrowLeft"){e.preventDefault();go(-1);}else if(e.key==="ArrowRight"){e.preventDefault();go(1);}});
   window.addEventListener("resize",()=>{clearTimeout(resizeTimer);resizeTimer=setTimeout(()=>{slides.forEach(slide=>{const m=slide.querySelector("video,img");if(m?.videoWidth&&m?.videoHeight)sizeFrame(slide,m.videoWidth,m.videoHeight);else if(m?.naturalWidth&&m?.naturalHeight)sizeFrame(slide,m.naturalWidth,m.naturalHeight);});positionSlides();},120);});
   updateActive();
   const stopAllPlayback=()=>slides.forEach(slide=>{const v=slide.querySelector("video");if(v){v.pause();v.muted=true;v.defaultMuted=true;try{v.currentTime=0;}catch(_){}slide.classList.remove("sound-activated");const b=slide.querySelector(".content-carousel-sound-button");if(b)b.textContent="ACTIVATE SOUND";}const f=slide.querySelector("iframe");if(f&&f.src&&f.src!=="about:blank")f.src="about:blank";});

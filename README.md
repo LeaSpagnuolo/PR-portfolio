@@ -9,7 +9,8 @@ Install into the existing GitHub Pages repository by replacing these three files
 Keep the existing Media/ folder exactly as it is (capital M). Do not create a new repository.
 
 Changes:
-- Sport Content and School Content show up to three cards: active center + one preview on each side.
+- Sport Content and School Content show up to three cards: active center + one larger preview on each side.
+- Side previews are clickable to navigate to that media; keyboard left/right arrows also work when the carousel is focused.
 - Center card dimensions adapt to the media's actual ratio; side cards remain previews and do not play.
 - YouTube slides use thumbnail previews while inactive; the embed is loaded only for the active slide.
 - The ACTIVATE SOUND control remains the explicit user action for sound.
