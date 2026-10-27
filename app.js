@@ -725,121 +725,106 @@ function bindSkillsEditor(){
 
 async function renderContentCarousel(box, metaItems, sectionKey){
   const staticPaths=STATIC_MEDIA[sectionKey]||[];
-  const entries=[];
   const hosted=(YOUTUBE_MEDIA[sectionKey]||[]);
-  const hostedBySlot = sectionKey === "sport1" ? {0:hosted.find(x=>x.id),2:hosted.find(x=>x.instagramUrl)} : {};
-  const sourceCount = metaItems.length ? Math.min(metaItems.length,20) : Math.min(staticPaths.length,20);
-  // Replace Sport Content 1 and 3 at their original positions. Do not append a second
-  // copy of hosted items after loading the saved/local files (that created duplicates).
+  const hostedBySlot=sectionKey==="sport1"?{0:hosted.find(x=>x.id),2:hosted.find(x=>x.instagramUrl)}:{};
+  const sourceCount=metaItems.length?Math.min(metaItems.length,20):Math.min(staticPaths.length,20);
+  const entries=[];
+  // Build exactly one entry per source slot. Hosted replacements occupy their original
+  // slots; they are never appended as additional slides.
   for(let i=0;i<sourceCount;i++){
     if(hostedBySlot[i]){
       const h=hostedBySlot[i];
-      entries.push(h.instagramUrl
-        ? {instagramUrl:h.instagramUrl,ratio:h.ratio||"9 / 16",label:h.label,meta:{format:"Original",customRatio:""}}
-        : {youtubeId:h.id,ratio:h.ratio||"9 / 16",label:h.label,meta:{format:"Original",customRatio:""}});
+      entries.push(h.instagramUrl?{key:`ig:${h.instagramUrl}`,instagramUrl:h.instagramUrl,ratio:h.ratio||"9 / 16",label:h.label,meta:{format:"Original"}}:{key:`yt:${h.id}`,youtubeId:h.id,ratio:h.ratio||"9 / 16",label:h.label,meta:{format:"Original"}});
       continue;
     }
     if(metaItems.length){
       const meta=metaItems[i];
       try{
         const pending=pendingMediaFiles[mediaStorageKey(sectionKey,meta.id)];
-        const file=pending ? {blob:pending,type:isVideoFile(pending)?"video":"image"} : await getManagedMedia(sectionKey,meta.id,meta);
-        if(file) entries.push({meta:{...meta,format:"Original",customRatio:""},file,src:file.legacy?file.src:null});
+        const file=pending?{blob:pending,type:isVideoFile(pending)?"video":"image",name:pending.name}:await getManagedMedia(sectionKey,meta.id,meta);
+        if(file)entries.push({key:`managed:${meta.id}`,meta:{...meta,format:"Original",customRatio:""},file,src:file.legacy?file.src:null});
       }catch(err){console.error("CHERRY LINE content carousel media read error",sectionKey,meta.id,err)}
     }else{
-      const path=staticPaths[i];
+      const path=staticPaths[i];if(!path)continue;
       const isVideo=/\.(mp4|mov|webm|m4v)$/i.test(path);
       const loaded=await checkStaticMedia(path,isVideo);
-      if(loaded) entries.push({path,isVideo,meta:{format:"Original",customRatio:""}});
+      if(loaded)entries.push({key:`path:${path.toLowerCase()}`,path,isVideo,meta:{format:"Original",customRatio:""}});
     }
   }
-  // Deduplicate only true repeats of the same source, not different files that happen
-  // to have similar names. This also protects against old editor saves with duplicates.
-  const seenSources=new Set();
-  for(let i=entries.length-1;i>=0;i--){
-    const e=entries[i];
-    const sourceName=String(e.file?.name||e.meta?.name||e.meta?.filename||e.meta?.src||"").trim().toLowerCase();
-    const key=e.youtubeId?`yt:${e.youtubeId}`:e.instagramUrl?`ig:${e.instagramUrl}`:e.path?`path:${e.path}`:sourceName?`name:${sourceName}`:e.meta?.id!=null?`meta:${e.meta.id}`:null;
-    if(key && seenSources.has(key)) entries.splice(i,1); else if(key) seenSources.add(key);
-  }
-  box.innerHTML="";
-  box.classList.add("content-carousel-host","media-managed-host");
-  box.classList.remove("media-managed-multi");
-  box.style.removeProperty("aspect-ratio");
-  box.style.removeProperty("width");
-  box.style.removeProperty("height");
-  box.style.setProperty("height","auto","important");
-  box.style.setProperty("aspect-ratio","auto","important");
-  box.style.setProperty("overflow","visible","important");
-  if(!entries.length){box.classList.add("content-carousel-empty");box.textContent="MEDIA COMING SOON";return;}
-  const stage=document.createElement("div");stage.className="content-carousel-stage";
-  const stageHeight=window.innerWidth<600?300:420;
-  stage.style.setProperty("height",`${stageHeight}px`,"important");
+  // Deduplicate by actual source identity while preserving the first occurrence/order.
+  const seen=new Set();
+  const uniqueEntries=entries.filter(e=>{const key=e.key||e.path||e.file?.name;if(!key)return true;if(seen.has(key))return false;seen.add(key);return true;});
+  box.innerHTML="";box.classList.add("content-carousel-host","media-managed-host");box.classList.remove("media-managed-multi","content-carousel-empty");
+  box.style.setProperty("height","auto","important");box.style.setProperty("aspect-ratio","auto","important");box.style.setProperty("overflow","visible","important");
+  if(!uniqueEntries.length){box.classList.add("content-carousel-empty");box.textContent="MEDIA COMING SOON";return;}
+  const stage=document.createElement("div");stage.className="content-carousel-stage";stage.setAttribute("aria-label",sectionKey==="sport1"?"Sport content carousel":"School content carousel");
   const track=document.createElement("div");track.className="content-carousel-track";
-  const prev=document.createElement("button");prev.type="button";prev.className="content-carousel-arrow content-carousel-prev";prev.setAttribute("aria-label","Previous media");prev.textContent="‹";
-  const next=document.createElement("button");next.type="button";next.className="content-carousel-arrow content-carousel-next";next.setAttribute("aria-label","Next media");next.textContent="›";
   const counter=document.createElement("span");counter.className="content-carousel-counter";
-  const dots=document.createElement("div");dots.className="content-carousel-dots";
   stage.appendChild(track);box.append(stage,counter);
-  let index=0;const slides=[];
-  function makeMedia(entry,i){
-    const frame=document.createElement("div");frame.className="content-carousel-slide";frame.dataset.index=String(i);
+  let index=0;const slides=[];let resizeTimer;
+  const stageMaxHeight=()=>Math.min(window.innerWidth<600?320:420,window.innerHeight*.68);
+  function sizeFrame(frame,w,h,isHosted=false){
+    if(!w||!h)return;
+    const ratio=w/h;const maxH=stageMaxHeight();
+    const maxW=Math.min(window.innerWidth*.72,ratio<.8?300:640);
+    let height=Math.min(maxH,maxW/ratio),width=height*ratio;
+    if(width>maxW){width=maxW;height=width/ratio;}
+    frame.style.width=`${Math.round(width)}px`;frame.style.height=`${Math.round(height)}px`;frame.style.aspectRatio=`${w} / ${h}`;frame.style.setProperty("--media-ratio",`${w} / ${h}`);
+  }
+  function makeSlide(entry,i){
+    const frame=document.createElement("div");frame.className="content-carousel-slide";frame.dataset.index=String(i);frame.setAttribute("aria-label",`Media ${i+1}`);
     let src=entry.src;if(entry.file&&!entry.file.legacy)src=URL.createObjectURL(entry.file.blob||entry.file);
-    const applyRatio=(el,w,h)=>{if(!w||!h)return;const ratio=w/h;const stageH=stageHeight;let height=stageH,width=height*ratio;const maxWidth=Math.max(180,Math.min(window.innerWidth*.78,900));if(width>maxWidth){width=maxWidth;height=width/ratio;}frame.style.width=`${Math.round(width)}px`;frame.style.height=`${Math.round(height)}px`;frame.style.aspectRatio=`${w} / ${h}`;frame.style.setProperty("--media-ratio",`${w} / ${h}`);};
-    if(entry.youtubeId || entry.instagramUrl){
-      const ratio=entry.ratio||(entry.instagramUrl?"9 / 16":"16 / 9"); const parts=ratio.split("/").map(v=>Number(v.trim())); const rw=parts[0]||16,rh=parts[1]||9;
-      const stageH=stageHeight; let height=stageH,width=height*rw/rh;
-      const maxWidth=Math.max(180,Math.min(window.innerWidth*.78,900)); if(width>maxWidth){width=maxWidth;height=width/(rw/rh);}
-      frame.style.width=`${Math.round(width)}px`; frame.style.height=`${Math.round(height)}px`; frame.style.aspectRatio=`${rw} / ${rh}`; frame.style.setProperty("--media-ratio",`${rw} / ${rh}`); frame.classList.add(entry.instagramUrl?"content-carousel-instagram":"content-carousel-youtube");
-      const iframe=document.createElement("iframe"); iframe.className="youtube-embed-frame";
-      iframe.src=entry.instagramUrl?`${entry.instagramUrl.replace(/\/$/,"")}/embed`:`https://www.youtube-nocookie.com/embed/${entry.youtubeId}?playsinline=1&rel=0&autoplay=1&mute=1&controls=0&loop=1&playlist=${entry.youtubeId}`; iframe.title=entry.label||"Embedded video"; iframe.loading="eager";
-      iframe.allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"; iframe.allowFullscreen=true; iframe.referrerPolicy="strict-origin-when-cross-origin";
-      frame.appendChild(iframe);
-      if(entry.instagramUrl){const fallback=document.createElement("a");fallback.className="content-carousel-external-link";fallback.href=entry.instagramUrl;fallback.target="_blank";fallback.rel="noopener noreferrer";fallback.textContent="Open Reel on Instagram ↗";frame.appendChild(fallback);}
+    if(entry.youtubeId||entry.instagramUrl){
+      const parts=(entry.ratio||"9 / 16").split("/").map(v=>Number(v.trim()));sizeFrame(frame,parts[0]||9,parts[1]||16,true);
+      frame.classList.add(entry.instagramUrl?"content-carousel-instagram":"content-carousel-youtube");
+      const poster=document.createElement("div");poster.className="content-carousel-embed-preview";poster.textContent=entry.label||"VIDEO";frame.appendChild(poster);
+      const iframe=document.createElement("iframe");iframe.className="youtube-embed-frame";iframe.title=entry.label||"Embedded video";iframe.loading="lazy";iframe.allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";iframe.allowFullscreen=true;iframe.referrerPolicy="strict-origin-when-cross-origin";
+      iframe.dataset.embedUrl=entry.instagramUrl?`${entry.instagramUrl.replace(/\/$/,"")}/embed`:`https://www.youtube-nocookie.com/embed/${entry.youtubeId}?playsinline=1&rel=0&autoplay=1&mute=1&controls=1&loop=1&playlist=${entry.youtubeId}`;frame.appendChild(iframe);
+      if(entry.instagramUrl){const fallback=document.createElement("a");fallback.className="content-carousel-external-link";fallback.href=entry.instagramUrl;fallback.target="_blank";fallback.rel="noopener noreferrer";fallback.textContent="Open Reel ↗";frame.appendChild(fallback);}
+    }else{
+      const type=entry.isVideo||entry.file?.type==="video"||String(entry.file?.type||"").startsWith("video/")||/\.(mp4|mov|webm|m4v)$/i.test(String(entry.path||entry.file?.name||entry.meta?.name||""));
+      if(type){
+        const video=document.createElement("video");video.src=src||entry.path;video.playsInline=true;video.preload="auto";video.muted=true;video.defaultMuted=true;video.loop=true;video.controls=false;video.setAttribute("playsinline","");video.setAttribute("muted","");
+        video.addEventListener("loadedmetadata",()=>{sizeFrame(frame,video.videoWidth,video.videoHeight);if(i!==index){try{video.currentTime=Math.min(.12,Math.max(0,video.duration||.12));}catch(_){}}},{once:true});
+        video.addEventListener("loadeddata",()=>{if(i===index){const p=video.play();if(p&&p.catch)p.catch(()=>{});}else{video.pause();}},{once:true});
+        video.addEventListener("error",()=>{frame.classList.add("content-carousel-media-error");video.remove();frame.textContent="MEDIA UNAVAILABLE"},{once:true});
+        frame.appendChild(video);
+      }else{
+        const img=document.createElement("img");img.alt=`${sectionKey==="sport1"?"Sport":"School"} content ${i+1}`;img.loading="lazy";img.src=src||entry.path;img.addEventListener("load",()=>sizeFrame(frame,img.naturalWidth,img.naturalHeight),{once:true});img.addEventListener("error",()=>{frame.classList.add("content-carousel-media-error");img.remove();frame.textContent="MEDIA UNAVAILABLE"},{once:true});frame.appendChild(img);
+      }
     }
-    else {
-      const type=entry.isVideo||entry.file?.type==="video"||String(entry.file?.type||"").startsWith("video/");
-      if(type){const video=document.createElement("video");video.src=src||entry.path;video.playsInline=true;video.preload="auto";video.muted=true;video.defaultMuted=true;video.loop=true;video.autoplay=true;video.controls=true;video.setAttribute("playsinline","");video.setAttribute("muted","");video.setAttribute("autoplay","");video.addEventListener("loadedmetadata",()=>applyRatio(video,video.videoWidth,video.videoHeight),{once:true});video.addEventListener("loadeddata",()=>{const playPromise=video.play();if(playPromise&&typeof playPromise.catch==="function")playPromise.catch(()=>{});},{once:true});video.addEventListener("error",()=>{frame.classList.add("content-carousel-media-error");video.remove();frame.textContent="MEDIA UNAVAILABLE"},{once:true});frame.appendChild(video);}
-      else{const img=document.createElement("img");img.alt=`${sectionKey==="sport1"?"Sport":"School"} content ${i+1}`;img.loading="lazy";img.src=src||entry.path;img.addEventListener("load",()=>applyRatio(img,img.naturalWidth,img.naturalHeight),{once:true});img.addEventListener("error",()=>{frame.classList.add("content-carousel-media-error");img.remove();frame.textContent="MEDIA UNAVAILABLE"},{once:true});frame.appendChild(img);}
-    }
-    return frame;
+    track.appendChild(frame);slides.push(frame);return frame;
   }
-  entries.forEach((entry,i)=>{const slide=makeMedia(entry,i);slides.push(slide);track.appendChild(slide)});
-  let firstClone=null,lastClone=null;
-  if(slides.length>1){
-    lastClone=slides[slides.length-1].cloneNode(true);lastClone.classList.add("is-loop-clone");lastClone.dataset.loopClone="last";
-    firstClone=slides[0].cloneNode(true);firstClone.classList.add("is-loop-clone");firstClone.dataset.loopClone="first";
-    track.insertBefore(lastClone,slides[0]);track.appendChild(firstClone);
+  uniqueEntries.forEach(makeSlide);
+  function updateActive(){
+    slides.forEach((slide,i)=>{
+      const active=i===index,side=i===((index-1+slides.length)%slides.length)||i===((index+1)%slides.length);
+      slide.classList.toggle("is-active",active);slide.classList.toggle("is-prev",i===(index-1+slides.length)%slides.length&&slides.length>1);slide.classList.toggle("is-next",i===(index+1)%slides.length&&slides.length>1);slide.classList.toggle("is-hidden",!active&&!side);
+      const video=slide.querySelector("video");
+      if(video){if(active){video.controls=true;const play=video.play();if(play&&play.catch)play.catch(()=>{});}else{video.pause();video.controls=false;}}
+      const iframe=slide.querySelector("iframe");if(iframe){if(active){if(iframe.src!==iframe.dataset.embedUrl)iframe.src=iframe.dataset.embedUrl;}else if(iframe.src){iframe.src="about:blank";}}
+    });
+    counter.textContent=`${index+1} / ${slides.length}`;
+    positionSlides();
   }
-  function setActive(nextIndex,scroll=true){
-    index=(nextIndex+entries.length)%entries.length;
-    slides.forEach((slide,i)=>slide.classList.toggle("is-active",i===index));
-    counter.textContent=`${index+1} / ${entries.length}`;
-    if(scroll){const slide=slides[index];stage.scrollTo({left:slide.offsetLeft-(stage.clientWidth-slide.clientWidth)/2,behavior:"smooth"});}
+  function positionSlides(){
+    const stageW=stage.clientWidth||window.innerWidth;const center=stageW/2;
+    slides.forEach((slide,i)=>{
+      if(slide.classList.contains("is-hidden")){slide.style.opacity="0";slide.style.pointerEvents="none";slide.style.visibility="hidden";return;}
+      slide.style.visibility="visible";slide.style.pointerEvents=i===index?"auto":"none";slide.style.opacity=i===index?"1":".62";
+      const isPrev=slide.classList.contains("is-prev"),isNext=slide.classList.contains("is-next");
+      const w=slide.offsetWidth||220;const sideX=isPrev?Math.max(12,center-w*.72):isNext?Math.min(stageW-w-12,center+w*.72):center-w/2;
+      slide.style.left=`${sideX}px`;slide.style.top="50%";slide.style.transform=`translateY(-50%) scale(${i===index?1:.72})`;slide.style.zIndex=i===index?3:2;
+    });
   }
-  // Native horizontal scrolling + snap; cloned edge slides make the wrap seamless.
-  // When the user lands on a clone, jump to its identical original with no animation.
-  if(slides.length>1){
-    requestAnimationFrame(()=>{stage.scrollLeft=slides[0].offsetLeft-(stage.clientWidth-slides[0].clientWidth)/2;});
-  }
-  // Native horizontal scrolling + snap provides smooth swipe navigation without arrows/dots.
-  // Don't force a second scroll on touchend: that caused the visible reverse/bounce effect.
-  let scrollTimer=null;
-  stage.addEventListener("scroll",()=>{
-    if(scrollTimer)clearTimeout(scrollTimer);
-    scrollTimer=setTimeout(()=>{
-      if(!slides.length)return;
-      const children=Array.from(track.children);const center=stage.scrollLeft+stage.clientWidth/2;let childIndex=0,distance=Infinity;
-      children.forEach((slide,i)=>{const d=Math.abs(slide.offsetLeft+slide.clientWidth/2-center);if(d<distance){distance=d;childIndex=i}});
-      if(children[childIndex]?.dataset.loopClone==="last"){
-        const target=slides[slides.length-1];stage.scrollTo({left:target.offsetLeft-(stage.clientWidth-target.clientWidth)/2,behavior:"auto"});index=slides.length-1;
-      }else if(children[childIndex]?.dataset.loopClone==="first"){
-        const target=slides[0];stage.scrollTo({left:target.offsetLeft-(stage.clientWidth-target.clientWidth)/2,behavior:"auto"});index=0;
-      }else index=Math.max(0,Math.min(slides.length-1,childIndex-1));
-      slides.forEach((slide,i)=>slide.classList.toggle("is-active",i===index));counter.textContent=`${index+1} / ${entries.length}`;
-    },80);
-  },{passive:true});
-  requestAnimationFrame(()=>setActive(0,false));
+  function go(delta){if(slides.length<2)return;index=(index+delta+slides.length)%slides.length;updateActive();}
+  let startX=0,startY=0,startTime=0;
+  stage.addEventListener("touchstart",e=>{const t=e.changedTouches[0];startX=t.clientX;startY=t.clientY;startTime=Date.now();},{passive:true});
+  stage.addEventListener("touchend",e=>{const t=e.changedTouches[0],dx=t.clientX-startX,dy=t.clientY-startY;if(Math.abs(dx)>35&&Math.abs(dx)>Math.abs(dy)*1.15)go(dx<0?1:-1);},{passive:true});
+  stage.addEventListener("pointerdown",e=>{if(e.pointerType!=="mouse")return;startX=e.clientX;startY=e.clientY;startTime=Date.now();});
+  stage.addEventListener("pointerup",e=>{if(e.pointerType!=="mouse")return;const dx=e.clientX-startX,dy=e.clientY-startY;if(Math.abs(dx)>35&&Math.abs(dx)>Math.abs(dy)*1.15)go(dx<0?1:-1);});
+  window.addEventListener("resize",()=>{clearTimeout(resizeTimer);resizeTimer=setTimeout(()=>{slides.forEach(slide=>{const m=slide.querySelector("video,img");if(m?.videoWidth&&m?.videoHeight)sizeFrame(slide,m.videoWidth,m.videoHeight);else if(m?.naturalWidth&&m?.naturalHeight)sizeFrame(slide,m.naturalWidth,m.naturalHeight);});positionSlides();},100);});
+  updateActive();
 }
 
 function checkStaticMedia(path,isVideo){
