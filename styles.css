@@ -4119,3 +4119,45 @@ body { min-height:100vh; }
   #about.about-layout > .about-media-primary > .about-carousel-host { margin-inline:auto!important; }
 }
 @media (max-width:560px) { #work .content-carousel-stage { height:360px!important; } }
+
+/* CHERRY LINE — intuitive media rail and clean native playback (2026-10-28) */
+#work .content-carousel-stage {
+  display:block!important; position:relative!important; overflow-x:auto!important; overflow-y:hidden!important;
+  height:470px!important; padding:14px 12px 22px!important; box-sizing:border-box!important;
+  scroll-snap-type:x mandatory!important; scroll-behavior:smooth!important; scrollbar-width:thin!important;
+  scrollbar-color:#660000 rgba(102,0,0,.12)!important; cursor:grab!important;
+}
+#work .content-carousel-track { display:flex!important; flex-flow:row nowrap!important; align-items:center!important; gap:18px!important; width:max-content!important; min-width:100%!important; height:100%!important; position:relative!important; }
+#work .content-carousel-slide {
+  display:flex!important; position:relative!important; flex:0 0 300px!important; align-items:center!important; justify-content:center!important;
+  height:420px!important; max-width:80vw!important; overflow:hidden!important; scroll-snap-align:center!important;
+  background:#151313!important; outline:1px solid rgba(102,0,0,.45)!important; outline-offset:-1px!important;
+  transition:opacity .2s ease, outline-color .2s ease, box-shadow .2s ease!important;
+}
+#work .content-carousel-slide.is-active { outline:2px solid #660000!important; box-shadow:0 12px 30px rgba(0,0,0,.22)!important; }
+#work .content-carousel-slide > img:not(.content-carousel-preview),
+#work .content-carousel-slide > video,
+#work .content-carousel-slide > iframe,
+#work .content-carousel-slide .youtube-embed-frame { position:absolute!important; inset:0!important; width:100%!important; height:100%!important; object-fit:contain!important; background:#151313!important; }
+#work .content-carousel-slide .content-carousel-preview { display:none!important; }
+#work .content-carousel-slide .content-carousel-sound-button { display:none!important; }
+#work .content-carousel-slide > video { z-index:3!important; controls:true; }
+#work .content-carousel-slide > iframe,
+#work .content-carousel-slide .youtube-embed-frame { z-index:3!important; }
+#work .content-carousel-slide .content-carousel-external-link { position:absolute!important; z-index:5!important; right:8px!important; bottom:8px!important; padding:8px 10px!important; background:rgba(10,10,10,.88)!important; color:white!important; font:10px var(--mono,monospace)!important; text-decoration:none!important; }
+#work .content-carousel-nav { display:flex!important; align-items:center!important; justify-content:center!important; gap:18px!important; padding:14px 0 4px!important; }
+#work .content-carousel-nav button { border:1px solid #660000!important; background:transparent!important; color:inherit!important; padding:10px 14px!important; font:10px var(--mono,monospace)!important; letter-spacing:.06em!important; cursor:pointer!important; transition:background .2s ease,color .2s ease!important; }
+#work .content-carousel-nav button:hover:not(:disabled) { background:#660000!important; color:#fff!important; }
+#work .content-carousel-nav button:disabled { opacity:.35!important; cursor:default!important; }
+#work .content-carousel-count { font:11px var(--mono,monospace)!important; letter-spacing:.08em!important; opacity:.7!important; min-width:52px!important; text-align:center!important; }
+@media(max-width:850px) {
+  #work .content-carousel-stage { height:410px!important; }
+  #work .content-carousel-slide { flex-basis:270px!important; height:360px!important; }
+}
+@media(max-width:560px) {
+  #work .content-carousel-stage { height:390px!important; padding-inline:8px!important; }
+  #work .content-carousel-track { gap:12px!important; }
+  #work .content-carousel-slide { flex-basis: min(78vw,270px)!important; height:340px!important; }
+  #work .content-carousel-nav { gap:10px!important; }
+  #work .content-carousel-nav button { padding:9px 10px!important; }
+}
