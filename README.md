@@ -1,7 +1,20 @@
-# CHERRY LINE — restore the original three-card carousel
+# CHERRY LINE — Media Carousel & Ratio Fix
 
-Replace `index.html`, `styles.css`, and `app.js` in the existing GitHub repository with these files. Keep the existing `Media/` folder exactly as it is (including the uppercase M); do not delete or rename it.
+This package restores the three-card Sport Content / School Content carousel (previous, active, next) and preserves each media's natural dimensions.
 
-This update restores the previous three-card carousel (left preview, centered active media, right preview), explicitly includes `Media/Sportcontent7.mov` and `Media/Schoolcontent4.png` when available, resets the page to the Hero on a browser refresh, and keeps the page/hero background consistently dark so the next section does not peek through as a white strip.
+## Replace these files
+- `index.html`
+- `styles.css`
+- `app.js`
 
-After replacing the three files, wait for GitHub Pages to finish deploying. Then do a hard refresh (Cmd+Shift+R on Mac). The ZIP has been syntax-checked, but the live site and the remote media files cannot be browser-tested from this package, so confirm the two named files exist in the repository under the exact same spelling and capitalization.
+Keep your existing `Media/` folder unchanged in the root of the GitHub repository. The carousel references it with case-sensitive paths.
+
+## Changes
+- Restores the three-media composition instead of a horizontal strip of 4–5 cards.
+- Fits each image/video using its natural aspect ratio (`object-fit: contain`) so 16:9 videos are not forced into a 9:16 frame.
+- Includes `Media/Sportcontent7.mov` in the Sport Content carousel.
+- Adds `Media/Schoolcontent4.png` (the poster) to School Content.
+- Includes hosted social videos as additional carousel items instead of replacing local media slots.
+- Keeps the visible previous/next buttons and clickable side previews.
+
+After upload, wait for GitHub Pages to deploy and hard-refresh the site (`Cmd + Shift + R`). JavaScript syntax was checked; the live site and exact deployed filenames have not been independently browser-tested.

@@ -31,7 +31,7 @@ const STATIC_MEDIA={
   'journalism1':["Media/journalism1.mp4"],
   'journalism2':["Media/Journalism2.mov"],
   'sport1':["Media/Sportcontent1.mov", "Media/Sportcontent2.mov", "Media/Sportcontent3.mov", "Media/Sportcontent4.mov", "Media/Sportcontent5.mp4", "Media/sportcontent6.mp4", "Media/Sportcontent7.mov"],
-  'school1':["Media/Schoolcontent1.mp4", "Media/Schoolcontent2.png", "Media/Schoolcontent3.mov", "Media/Schoolcontent4.png", "Media/Schoolcontent5.mov", "Media/Schoolcontent6.mp4"],
+  'school1':["Media/Schoolcontent1.mp4", "Media/Schoolcontent2.png", "Media/Schoolcontent3.mov", "Media/Schoolcontent3.png", "Media/Schoolcontent4.png", "Media/Schoolcontent5.mov", "Media/Schoolcontent6.mp4"],
   'w2w':["Media/W2W.mp4"],
   'spa':["Media/GPSPA1.jpeg", "Media/GPSPA2.jpeg", "Media/GPSPA3.jpeg", "Media/GPSPA4.jpeg", "Media/GPSPA5.jpeg"],
   '24h':["Media/24HSPA1.jpeg", "Media/24HSPA2.jpeg", "Media/24HSPA3.jpeg", "Media/24HSPA4.jpeg"]
@@ -726,8 +726,8 @@ function bindSkillsEditor(){
 async function renderContentCarousel(box, metaItems, sectionKey){
   const staticPaths=STATIC_MEDIA[sectionKey]||[];
   const hosted=(YOUTUBE_MEDIA[sectionKey]||[]);
-  const hostedBySlot=sectionKey==="sport1"?{0:hosted.find(x=>x.id),2:hosted.find(x=>x.instagramUrl)}:{0:hosted.find(x=>x.id)};
-  const sourceCount=Math.min(Math.max(metaItems.length,staticPaths.length),20);
+  const hostedBySlot={}; // Keep every local media file; hosted videos are appended as additional slides below.
+  const sourceCount=Math.min(Math.max(metaItems.length,staticPaths.length,hosted.length),20);
   const entries=[];
   for(let i=0;i<sourceCount;i++){
     if(hostedBySlot[i]){
@@ -735,34 +735,24 @@ async function renderContentCarousel(box, metaItems, sectionKey){
       entries.push(h.instagramUrl?{key:`ig:${h.instagramUrl}`,instagramUrl:h.instagramUrl,ratio:h.ratio||"9 / 16",label:h.label,meta:{format:"Original"}}:{key:`yt:${h.id}`,youtubeId:h.id,ratio:h.ratio||"9 / 16",label:h.label,meta:{format:"Original"}});
       continue;
     }
-    let addedManaged=false;
-    const meta=metaItems[i];
-    if(meta){
+    if(metaItems.length){
+      const meta=metaItems[i]; if(!meta)continue;
       try{
         const pending=pendingMediaFiles[mediaStorageKey(sectionKey,meta.id)];
         const file=pending?{blob:pending,type:isVideoFile(pending)?"video":"image",name:pending.name}:await getManagedMedia(sectionKey,meta.id,meta);
-        if(file){entries.push({key:`managed:${meta.id}`,meta:{...meta,format:"Original",customRatio:""},file,src:file.legacy?file.src:null});addedManaged=true;}
+        if(file)entries.push({key:`managed:${meta.id}`,meta:{...meta,format:"Original",customRatio:""},file,src:file.legacy?file.src:null});
       }catch(err){console.error("CHERRY LINE content carousel media read error",sectionKey,meta.id,err)}
-    }
-    // If a saved editor slot is empty/missing, fall back to the repository's original Media file.
-    // This keeps the full static set visible, including Sport Content 7 and School Content 4.
-    if(!addedManaged){
+    }else{
       const path=staticPaths[i];if(!path)continue;
       const isVideo=/\.(mp4|mov|webm|m4v)$/i.test(path);
       const loaded=await checkStaticMedia(path,isVideo);
       if(loaded)entries.push({key:`path:${path.toLowerCase()}`,path,isVideo,meta:{format:"Original",customRatio:""}});
     }
   }
-  // These two assets are required portfolio pieces. Add them explicitly if a stale saved slot
-  // is masking them (Sport Content 7 is landscape video; School Content 4 is the poster).
-  const requiredPaths = sectionKey === "sport1" ? ["Media/Sportcontent7.mov"] : sectionKey === "school1" ? ["Media/Schoolcontent4.png"] : [];
-  for (const path of requiredPaths) {
-    const alreadyPresent = entries.some(e => (e.path || "").toLowerCase() === path.toLowerCase() || String(e.file?.name || e.meta?.name || "").toLowerCase() === path.split("/").pop().toLowerCase());
-    if (!alreadyPresent) {
-      const isVideo = /\.(mp4|mov|webm|m4v)$/i.test(path);
-      const loaded = await checkStaticMedia(path, isVideo);
-      if (loaded) entries.push({key:`required:${path.toLowerCase()}`,path,isVideo,meta:{format:"Original",customRatio:""}});
-    }
+  // Keep hosted social videos as additional slides instead of replacing local files.
+  for(const h of hosted){
+    if(h.instagramUrl) entries.push({key:`ig:${h.instagramUrl}`,instagramUrl:h.instagramUrl,ratio:h.ratio||"9 / 16",label:h.label,meta:{format:"Original"}});
+    else if(h.id) entries.push({key:`yt:${h.id}`,youtubeId:h.id,ratio:h.ratio||"9 / 16",label:h.label,meta:{format:"Original"}});
   }
   // Deduplicate by actual identity (not just editor slot IDs).
   const seen=new Set();
@@ -1168,23 +1158,7 @@ async function saveEditorChanges(){
     pendingMediaDeletes=[];
     // Persist only after all media writes and migration have completed.
     localStorage.setItem("leaCherryLine",JSON.stringify(state));
-    await // Refresh must always open at the Hero, even when the browser restores #work or a previous scroll position.
-(function forceHeroOnReload(){
-  if ("scrollRestoration" in history) history.scrollRestoration = "manual";
-  const nav = performance.getEntriesByType && performance.getEntriesByType("navigation")[0];
-  if (nav && nav.type === "reload") {
-    try { history.replaceState(null, "", location.pathname + location.search); } catch (_) {}
-    const reset = () => { window.scrollTo(0, 0); document.documentElement.scrollTop = 0; document.body.scrollTop = 0; };
-    document.documentElement.style.scrollBehavior = "auto";
-    reset();
-    window.addEventListener("pageshow", reset, { once: true });
-    window.addEventListener("load", reset, { once: true });
-    [80, 250, 600, 1000].forEach(ms => setTimeout(reset, ms));
-    setTimeout(() => { document.documentElement.style.scrollBehavior = "smooth"; }, 1200);
-  }
-})();
-
-render();
+    await render();
     if(window.refreshCherryGalleries)await window.refreshCherryGalleries();
     document.getElementById("editor").close();
     saveButton.textContent="SAVED ✓";
