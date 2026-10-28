@@ -4148,3 +4148,49 @@ body { min-height:100vh; }
 #work .content-carousel-slide.is-active .content-carousel-preview { display:none!important; }
 @media(max-width:850px){ #work .content-carousel-stage { height:430px!important; } }
 @media(max-width:560px){ #work .content-carousel-stage { height:360px!important; } }
+
+/* CHERRY LINE — final navigation control fix */
+#work .content-carousel-stage { position:relative!important; }
+#work .content-carousel-arrow {
+  position:absolute!important; top:50%!important; transform:translateY(-50%)!important;
+  display:flex!important; align-items:center!important; justify-content:center!important;
+  width:42px!important; height:42px!important; min-width:42px!important; min-height:42px!important;
+  padding:0!important; border:1px solid rgba(255,255,255,.82)!important; border-radius:50%!important;
+  background:rgba(12,12,12,.88)!important; color:#fff!important; font-size:30px!important; line-height:1!important;
+  opacity:1!important; visibility:visible!important; pointer-events:auto!important; cursor:pointer!important; z-index:20!important;
+}
+#work .content-carousel-prev { left:12px!important; right:auto!important; }
+#work .content-carousel-next { right:12px!important; left:auto!important; }
+#work .content-carousel-arrow:disabled { opacity:.35!important; cursor:default!important; }
+#work .content-carousel-counter { position:absolute!important; left:50%!important; right:auto!important; bottom:12px!important; transform:translateX(-50%)!important; z-index:20!important; padding:6px 10px!important; border:1px solid rgba(255,255,255,.28)!important; border-radius:20px!important; background:rgba(10,10,10,.82)!important; color:#fff!important; font-size:11px!important; letter-spacing:.12em!important; pointer-events:none!important; }
+#work .content-carousel-slide > video,
+#work .content-carousel-slide > img:not(.content-carousel-preview) { object-fit:contain!important; background:transparent!important; }
+
+/* CHERRY LINE — native playback + motorsport side arrows (2026-10-28) */
+#work .content-carousel-stage {
+  overflow:visible!important;
+  isolation:isolate!important;
+}
+#work .content-carousel-sound-button,
+#work .content-carousel-external-link { display:none!important; }
+#work .content-carousel-arrow {
+  top:50%!important;
+  width:38px!important;height:48px!important;min-width:38px!important;min-height:48px!important;
+  border:1px solid rgba(255,255,255,.65)!important;border-radius:2px!important;
+  background:#660000!important;color:#fff!important;
+  font-family:Arial,sans-serif!important;font-size:30px!important;font-weight:400!important;
+  box-shadow:0 5px 18px rgba(0,0,0,.28)!important;
+  clip-path:polygon(0 0,100% 0,100% 82%,78% 100%,0 100%)!important;
+  z-index:30!important;
+}
+#work .content-carousel-prev { left:-46px!important;right:auto!important; }
+#work .content-carousel-next { right:-46px!important;left:auto!important;clip-path:polygon(0 0,100% 0,100% 100%,22% 100%,0 82%)!important; }
+#work .content-carousel-arrow:hover:not(:disabled) { background:#8a0000!important;transform:translateY(-50%) scale(1.04)!important; }
+#work .content-carousel-arrow:focus-visible { outline:2px solid #fff!important;outline-offset:3px!important; }
+#work .content-carousel-slide > video { z-index:3!important; }
+#work .content-carousel-slide > video::-webkit-media-controls { z-index:5; }
+@media(max-width:1050px) {
+  #work .content-carousel-prev { left:6px!important; }
+  #work .content-carousel-next { right:6px!important; }
+  #work .content-carousel-arrow { background:rgba(102,0,0,.94)!important; }
+}

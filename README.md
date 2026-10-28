@@ -1,20 +1,16 @@
-# CHERRY LINE — Media Carousel & Ratio Fix
+# CHERRY LINE — Carousel controls refinement
 
-This package restores the three-card Sport Content / School Content carousel (previous, active, next) and preserves each media's natural dimensions.
-
-## Replace these files
-- `index.html`
-- `styles.css`
-- `app.js`
-
-Keep your existing `Media/` folder unchanged in the root of the GitHub repository. The carousel references it with case-sensitive paths.
+This package keeps the three-media carousel design and changes only video playback controls and navigation styling.
 
 ## Changes
-- Restores the three-media composition instead of a horizontal strip of 4–5 cards.
-- Fits each image/video using its natural aspect ratio (`object-fit: contain`) so 16:9 videos are not forced into a 9:16 frame.
-- Includes `Media/Sportcontent7.mov` in the Sport Content carousel.
-- Adds `Media/Schoolcontent4.png` (the poster) to School Content.
-- Includes hosted social videos as additional carousel items instead of replacing local media slots.
-- Keeps the visible previous/next buttons and clickable side previews.
+- Removed the custom `ACTIVATE SOUND` / `OPEN VIDEO WITH SOUND` overlay buttons.
+- Local videos use native browser controls, with sound enabled and no autoplay. Visitors can play, pause, seek, and adjust volume using the standard controls.
+- YouTube embeds use their built-in controls and do not autoplay. Instagram embeds no longer have a custom overlay link on top of the media.
+- Carousel navigation arrows use a motorsport-inspired dark-cherry treatment and sit outside the media area on desktop; on smaller screens they remain at the outer edges of the carousel.
+- Preserves the three-media layout and natural media aspect ratios.
 
-After upload, wait for GitHub Pages to deploy and hard-refresh the site (`Cmd + Shift + R`). JavaScript syntax was checked; the live site and exact deployed filenames have not been independently browser-tested.
+## Install
+Replace `index.html`, `styles.css`, and `app.js` in the existing GitHub repository. Keep the existing `Media/` folder unchanged.
+
+## Validation
+`app.js` passes `node --check` and the ZIP archive passes `unzip -t`. Browser playback and final responsive layout should still be checked on the published GitHub Pages site.

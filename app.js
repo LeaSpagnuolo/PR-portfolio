@@ -726,46 +726,47 @@ function bindSkillsEditor(){
 async function renderContentCarousel(box, metaItems, sectionKey){
   const staticPaths=STATIC_MEDIA[sectionKey]||[];
   const hosted=(YOUTUBE_MEDIA[sectionKey]||[]);
-  const hostedBySlot={}; // Keep every local media file; hosted videos are appended as additional slides below.
-  const sourceCount=Math.min(Math.max(metaItems.length,staticPaths.length,hosted.length),20);
   const entries=[];
-  for(let i=0;i<sourceCount;i++){
-    if(hostedBySlot[i]){
-      const h=hostedBySlot[i];
-      entries.push(h.instagramUrl?{key:`ig:${h.instagramUrl}`,instagramUrl:h.instagramUrl,ratio:h.ratio||"9 / 16",label:h.label,meta:{format:"Original"}}:{key:`yt:${h.id}`,youtubeId:h.id,ratio:h.ratio||"9 / 16",label:h.label,meta:{format:"Original"}});
-      continue;
-    }
-    if(metaItems.length){
-      const meta=metaItems[i]; if(!meta)continue;
-      try{
-        const pending=pendingMediaFiles[mediaStorageKey(sectionKey,meta.id)];
-        const file=pending?{blob:pending,type:isVideoFile(pending)?"video":"image",name:pending.name}:await getManagedMedia(sectionKey,meta.id,meta);
-        if(file)entries.push({key:`managed:${meta.id}`,meta:{...meta,format:"Original",customRatio:""},file,src:file.legacy?file.src:null});
-      }catch(err){console.error("CHERRY LINE content carousel media read error",sectionKey,meta.id,err)}
-    }else{
-      const path=staticPaths[i];if(!path)continue;
-      const isVideo=/\.(mp4|mov|webm|m4v)$/i.test(path);
-      const loaded=await checkStaticMedia(path,isVideo);
-      if(loaded)entries.push({key:`path:${path.toLowerCase()}`,path,isVideo,meta:{format:"Original",customRatio:""}});
-    }
+
+  // Include ALL saved/editor media and ALL default static media. Previously, once
+  // any editor metadata existed, static paths were skipped entirely; this is why
+  // later items such as Sport Content 7 could disappear from the carousel.
+  for(const meta of (Array.isArray(metaItems)?metaItems:[])){
+    if(!meta)continue;
+    try{
+      const pending=pendingMediaFiles[mediaStorageKey(sectionKey,meta.id)];
+      const file=pending?{blob:pending,type:isVideoFile(pending)?"video":"image",name:pending.name}:await getManagedMedia(sectionKey,meta.id,meta);
+      if(file)entries.push({key:`managed:${meta.id}`,meta:{...meta,format:"Original",customRatio:""},file,src:file.legacy?file.src:null});
+    }catch(err){console.error("CHERRY LINE content carousel media read error",sectionKey,meta.id,err)}
   }
-  // Keep hosted social videos as additional slides instead of replacing local files.
+  for(const path of staticPaths){
+    const isVideo=/\.(mp4|mov|webm|m4v)$/i.test(path);
+    // Do not pre-filter using a metadata probe: Safari can fail the probe for a
+    // valid .mov before playback, which used to silently remove Sport Content 7.
+    entries.push({key:`path:${path.toLowerCase()}`,path,isVideo,meta:{format:"Original",customRatio:""}});
+  }
+  // Hosted social media are additional slides, never replacements for local files.
   for(const h of hosted){
-    if(h.instagramUrl) entries.push({key:`ig:${h.instagramUrl}`,instagramUrl:h.instagramUrl,ratio:h.ratio||"9 / 16",label:h.label,meta:{format:"Original"}});
-    else if(h.id) entries.push({key:`yt:${h.id}`,youtubeId:h.id,ratio:h.ratio||"9 / 16",label:h.label,meta:{format:"Original"}});
+    if(h.instagramUrl)entries.push({key:`ig:${h.instagramUrl}`,instagramUrl:h.instagramUrl,ratio:h.ratio||"9 / 16",label:h.label,meta:{format:"Original"}});
+    else if(h.id)entries.push({key:`yt:${h.id}`,youtubeId:h.id,ratio:h.ratio||"9 / 16",label:h.label,meta:{format:"Original"}});
   }
   // Deduplicate by actual identity (not just editor slot IDs).
   const seen=new Set();
   const uniqueEntries=entries.filter(e=>{
     const f=e.file?.blob||e.file;
-    const identity=e.youtubeId?`yt:${e.youtubeId}`:e.instagramUrl?`ig:${e.instagramUrl.replace(/\/$/,"")}`:e.path?`path:${e.path.toLowerCase()}`:e.src?`src:${e.src}`:f?.name?`file:${f.name.toLowerCase()}:${f.size||0}:${f.lastModified||0}`:e.key;
+    const basename=value=>String(value||"").split(/[\/]/).pop().toLowerCase();
+    const identity=e.youtubeId?`yt:${e.youtubeId}`:e.instagramUrl?`ig:${e.instagramUrl.replace(/\/$/,"")}`:e.path?`media:${basename(e.path)}`:e.src?`src:${e.src}`:f?.name?`media:${basename(f.name)}`:e.key;
     if(!identity)return true;if(seen.has(identity))return false;seen.add(identity);return true;
   });
   box.innerHTML="";box.classList.add("content-carousel-host","media-managed-host");box.classList.remove("media-managed-multi","content-carousel-empty");
   box.style.setProperty("height","auto","important");box.style.setProperty("aspect-ratio","auto","important");box.style.setProperty("overflow","visible","important");
   if(!uniqueEntries.length){box.classList.add("content-carousel-empty");box.textContent="MEDIA COMING SOON";return;}
   const stage=document.createElement("div");stage.className="content-carousel-stage";stage.setAttribute("aria-label",sectionKey==="sport1"?"Sport content carousel":"School content carousel");stage.tabIndex=0;
-  const track=document.createElement("div");track.className="content-carousel-track";stage.appendChild(track);box.appendChild(stage);
+  const track=document.createElement("div");track.className="content-carousel-track";stage.appendChild(track);
+  const prevButton=document.createElement("button");prevButton.type="button";prevButton.className="content-carousel-arrow content-carousel-prev";prevButton.setAttribute("aria-label","Previous media");prevButton.textContent="‹";
+  const nextButton=document.createElement("button");nextButton.type="button";nextButton.className="content-carousel-arrow content-carousel-next";nextButton.setAttribute("aria-label","Next media");nextButton.textContent="›";
+  const counter=document.createElement("span");counter.className="content-carousel-counter";counter.setAttribute("aria-live","polite");
+  stage.append(prevButton,nextButton,counter);box.appendChild(stage);
   let index=0,resizeTimer=null;const slides=[];
   const stageMaxHeight=()=>Math.min(window.innerWidth<600?330:440,Math.max(250,window.innerHeight*.64));
   function sizeFrame(frame,w,h){
@@ -782,25 +783,20 @@ async function renderContentCarousel(box, metaItems, sectionKey){
       frame.classList.add(entry.instagramUrl?"content-carousel-instagram":"content-carousel-youtube");
       if(entry.youtubeId){const preview=document.createElement("img");preview.className="content-carousel-preview";preview.alt="";preview.loading="lazy";preview.src=`https://i.ytimg.com/vi/${entry.youtubeId}/hqdefault.jpg`;preview.addEventListener("error",()=>{preview.src=`https://i.ytimg.com/vi/${entry.youtubeId}/mqdefault.jpg`;},{once:true});frame.appendChild(preview);}
       const iframe=document.createElement("iframe");iframe.className="youtube-embed-frame";iframe.title=entry.label||"Embedded video";iframe.loading="lazy";iframe.allow="autoplay; encrypted-media; picture-in-picture; fullscreen";iframe.allowFullscreen=true;iframe.referrerPolicy="strict-origin-when-cross-origin";
-      iframe.dataset.embedUrl=entry.instagramUrl?`${entry.instagramUrl.replace(/\/$/,"")}/embed`:`https://www.youtube-nocookie.com/embed/${entry.youtubeId}?playsinline=1&rel=0&autoplay=1&mute=1&controls=1&loop=1&playlist=${entry.youtubeId}`;
-      iframe.dataset.soundUrl=entry.instagramUrl?"":`https://www.youtube-nocookie.com/embed/${entry.youtubeId}?playsinline=1&rel=0&autoplay=1&mute=0&controls=1&start=0&loop=1&playlist=${entry.youtubeId}`;
+      // Use the platform's native player controls. No custom sound overlay is placed
+      // over the video, so subtitles and the seek bar remain fully accessible.
+      iframe.dataset.embedUrl=entry.instagramUrl?`${entry.instagramUrl.replace(/\/$/,"")}/embed`:`https://www.youtube-nocookie.com/embed/${entry.youtubeId}?playsinline=1&rel=0&autoplay=0&mute=0&controls=1&loop=0`;
       frame.appendChild(iframe);
-      const soundButton=document.createElement("button");soundButton.type="button";soundButton.className="content-carousel-sound-button";soundButton.textContent=entry.instagramUrl?"OPEN VIDEO WITH SOUND ↗":"ACTIVATE SOUND";soundButton.setAttribute("aria-label","Activate sound and restart this video");frame.appendChild(soundButton);
-      soundButton.addEventListener("click",event=>{event.stopPropagation();if(entry.instagramUrl){window.open(entry.instagramUrl,"_blank","noopener,noreferrer");return;}iframe.src=iframe.dataset.soundUrl;slide.classList.add("sound-activated");soundButton.textContent="SOUND ON";});
-      if(entry.instagramUrl){const fallback=document.createElement("a");fallback.className="content-carousel-external-link";fallback.href=entry.instagramUrl;fallback.target="_blank";fallback.rel="noopener noreferrer";fallback.textContent="Open Reel ↗";frame.appendChild(fallback);}
       frame.dataset.external="true";
     }else{
       const f=entry.file?.blob||entry.file;
       const type=entry.isVideo||entry.file?.type==="video"||String(entry.file?.type||f?.type||"").startsWith("video/")||/\.(mp4|mov|webm|m4v)$/i.test(String(entry.path||entry.file?.name||entry.meta?.name||""));
       if(type){
-        const video=document.createElement("video");video.src=src||entry.path;video.playsInline=true;video.preload="auto";video.loop=true;video.controls=false;video.muted=true;video.defaultMuted=true;video.setAttribute("playsinline","");
+        const video=document.createElement("video");video.src=src||entry.path;video.playsInline=true;video.preload="metadata";video.loop=false;video.controls=true;video.muted=false;video.defaultMuted=false;video.setAttribute("playsinline","");video.setAttribute("controls","");
         video.addEventListener("loadedmetadata",()=>sizeFrame(frame,video.videoWidth,video.videoHeight),{once:true});
         video.addEventListener("loadeddata",()=>{if(i!==index)video.pause();},{once:true});
         video.addEventListener("error",()=>{frame.classList.add("content-carousel-media-error");video.remove();frame.textContent="MEDIA UNAVAILABLE";},{once:true});
         frame.appendChild(video);
-        const soundButton=document.createElement("button");soundButton.type="button";soundButton.className="content-carousel-sound-button";soundButton.textContent="ACTIVATE SOUND";soundButton.setAttribute("aria-label","Activate sound and restart this video");
-        soundButton.addEventListener("click",event=>{event.stopPropagation();video.pause();try{video.currentTime=0;}catch(_){}video.muted=false;video.defaultMuted=false;video.controls=true;slide.classList.add("sound-activated");soundButton.textContent="SOUND ON";const playPromise=video.play();if(playPromise&&playPromise.catch)playPromise.catch(()=>{soundButton.textContent="PRESS PLAY";});});
-        frame.appendChild(soundButton);
       }else{
         const img=document.createElement("img");img.alt=`${sectionKey==="sport1"?"Sport":"School"} content ${i+1}`;img.loading="lazy";img.src=src||entry.path;
         img.addEventListener("load",()=>sizeFrame(frame,img.naturalWidth,img.naturalHeight),{once:true});img.addEventListener("error",()=>{frame.classList.add("content-carousel-media-error");img.remove();frame.textContent="MEDIA UNAVAILABLE";},{once:true});frame.appendChild(img);
@@ -815,10 +811,16 @@ async function renderContentCarousel(box, metaItems, sectionKey){
       slide.classList.toggle("is-active",active);slide.classList.toggle("is-prev",prev);slide.classList.toggle("is-next",next);slide.classList.toggle("is-hidden",!active&&!prev&&!next);
       slide.style.visibility=active||prev||next?"visible":"hidden";slide.style.pointerEvents=active?"auto":"none";slide.style.opacity=active?"1":".58";slide.style.zIndex=active?"3":"1";
       const video=slide.querySelector("video");
-      if(video){if(active){video.controls=false;video.muted=!slide.classList.contains("sound-activated");video.defaultMuted=video.muted;const p=video.play();if(p&&p.catch)p.catch(()=>{slide.classList.add("needs-play");});}else{video.pause();video.muted=true;video.defaultMuted=true;video.controls=false;try{video.currentTime=0;}catch(_){}slide.classList.remove("sound-activated");const button=slide.querySelector(".content-carousel-sound-button");if(button)button.textContent="ACTIVATE SOUND";}}
-      const iframe=slide.querySelector("iframe");if(iframe){if(active){if(iframe.src!==iframe.dataset.embedUrl&& !slide.classList.contains("sound-activated"))iframe.src=iframe.dataset.embedUrl;}else if(iframe.src&&iframe.src!=="about:blank"){iframe.src="about:blank";slide.classList.remove("sound-activated");const button=slide.querySelector(".content-carousel-sound-button");if(button){button.textContent=slide.classList.contains("content-carousel-instagram")?"OPEN VIDEO WITH SOUND ↗":"ACTIVATE SOUND";button.disabled=false;}}}
+      if(video){
+        // Never autoplay. The visitor uses the browser's own Play/volume/seek controls.
+        video.controls=true;video.muted=false;video.defaultMuted=false;
+        if(!active){video.pause();try{video.currentTime=0;}catch(_){}}
+      }
+      const iframe=slide.querySelector("iframe");if(iframe){if(active){if(iframe.src!==iframe.dataset.embedUrl)iframe.src=iframe.dataset.embedUrl;}else if(iframe.src&&iframe.src!=="about:blank"){iframe.src="about:blank";}}
       if(!active)slide.classList.remove("needs-play");
     });
+    counter.textContent=`${index+1} / ${slides.length}`;
+    prevButton.disabled=slides.length<2;nextButton.disabled=slides.length<2;
     positionSlides();
   }
   function positionSlides(){
@@ -840,6 +842,9 @@ async function renderContentCarousel(box, metaItems, sectionKey){
     });
   }
   function go(delta){if(slides.length<2)return;index=(index+delta+slides.length)%slides.length;updateActive();}
+  prevButton.addEventListener("click",event=>{event.preventDefault();event.stopPropagation();go(-1)});
+  nextButton.addEventListener("click",event=>{event.preventDefault();event.stopPropagation();go(1)});
+  stage.addEventListener("keydown",event=>{if(event.key==="ArrowLeft"){event.preventDefault();go(-1)}else if(event.key==="ArrowRight"){event.preventDefault();go(1)}});
   let startX=0,startY=0;
   stage.addEventListener("touchstart",e=>{const t=e.changedTouches[0];startX=t.clientX;startY=t.clientY;},{passive:true});
   stage.addEventListener("touchend",e=>{const t=e.changedTouches[0],dx=t.clientX-startX,dy=t.clientY-startY;if(Math.abs(dx)>35&&Math.abs(dx)>Math.abs(dy)*1.15)go(dx<0?1:-1);},{passive:true});
@@ -848,7 +853,7 @@ async function renderContentCarousel(box, metaItems, sectionKey){
   stage.addEventListener("click",e=>{if(e.target.closest(".content-carousel-sound-button"))return;const slide=e.target.closest(".content-carousel-slide");if(!slide)return;const n=Number(slide.dataset.index);if(Number.isInteger(n)&&n!==index)go(n-index);});
   window.addEventListener("resize",()=>{clearTimeout(resizeTimer);resizeTimer=setTimeout(()=>{slides.forEach(slide=>{const m=slide.querySelector("video,img");if(m?.videoWidth&&m?.videoHeight)sizeFrame(slide,m.videoWidth,m.videoHeight);else if(m?.naturalWidth&&m?.naturalHeight)sizeFrame(slide,m.naturalWidth,m.naturalHeight);});positionSlides();},120);});
   updateActive();
-  const stopAllPlayback=()=>slides.forEach(slide=>{const v=slide.querySelector("video");if(v){v.pause();v.muted=true;v.defaultMuted=true;try{v.currentTime=0;}catch(_){}slide.classList.remove("sound-activated");const b=slide.querySelector(".content-carousel-sound-button");if(b)b.textContent="ACTIVATE SOUND";}const f=slide.querySelector("iframe");if(f&&f.src&&f.src!=="about:blank")f.src="about:blank";});
+  const stopAllPlayback=()=>slides.forEach(slide=>{const v=slide.querySelector("video");if(v){v.pause();v.muted=false;v.defaultMuted=false;try{v.currentTime=0;}catch(_){}}const f=slide.querySelector("iframe");if(f&&f.src&&f.src!=="about:blank")f.src="about:blank";});
   document.addEventListener("visibilitychange",()=>{if(document.hidden)stopAllPlayback();else updateActive();});
   if("IntersectionObserver" in window){const observer=new IntersectionObserver(entries=>{if(!entries[0]?.isIntersecting)stopAllPlayback();else if(!document.hidden)updateActive();},{threshold:.15});observer.observe(box);}
 }
