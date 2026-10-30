@@ -44,3 +44,10 @@ After publishing, hard-refresh with Cmd+Shift+R. If Sport Content 7 still does n
 - Added a closed-by-default right-edge soundtrack tab. Clicking it slides out a Spotify playlist drawer with the supplied playlist embed; it can be closed with the X, the tab, Escape, or by clicking outside.
 - Drawer is responsive on mobile and respects reduced-motion preferences.
 - No existing Media assets or portfolio sections were changed.
+
+
+## CHERRY LINE V6 — Motorsport gallery controls
+- Added previous/next arrow controls for both Motorsport photo galleries; manual selection resets the existing automatic rotation timer.
+- Added a dedicated expand control and click-to-enlarge for photos. Video items open in a larger modal player with controls.
+- Replaced the previous fade/scale change with a horizontal sliding transition.
+- The soundtrack drawer and all existing media paths remain unchanged.

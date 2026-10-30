@@ -4759,3 +4759,126 @@ video:-webkit-full-screen {
     transition: none !important;
   }
 }
+
+
+/* CHERRY LINE V6 — hands-on Motorsport galleries + cinematic slide transition */
+.photo-gallery .gallery-slide {
+  opacity: 1 !important;
+  transform: translateX(100%) !important;
+  transition: transform .68s cubic-bezier(.76,0,.24,1) !important;
+  z-index: 1;
+  cursor: zoom-in;
+}
+.photo-gallery .gallery-slide.active {
+  opacity: 1 !important;
+  transform: translateX(0) !important;
+  z-index: 2;
+}
+.photo-gallery .gallery-slide.gallery-before {
+  opacity: 1 !important;
+  transform: translateX(-100%) !important;
+  z-index: 1;
+}
+.photo-gallery .gallery-slide img,
+.photo-gallery .gallery-slide video {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  display: block !important;
+}
+.photo-gallery .gallery-arrow {
+  display: grid !important;
+  place-items: center !important;
+  width: 42px !important;
+  height: 42px !important;
+  border: 1px solid rgba(255,255,255,.85) !important;
+  border-radius: 50% !important;
+  background: rgba(12,12,12,.58) !important;
+  color: #fff !important;
+  font: 28px/1 Arial,sans-serif !important;
+  backdrop-filter: blur(8px);
+  transition: background .2s ease, transform .2s ease !important;
+}
+.photo-gallery .gallery-arrow:hover {
+  background: #660000 !important;
+  transform: translateY(-50%) scale(1.08) !important;
+}
+.photo-gallery .gallery-prev { left: 14px !important; }
+.photo-gallery .gallery-next { right: 14px !important; }
+.photo-gallery .gallery-zoom {
+  position: absolute;
+  z-index: 6;
+  top: 14px;
+  right: 14px;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid rgba(255,255,255,.82);
+  border-radius: 50%;
+  color: #fff;
+  background: rgba(12,12,12,.58);
+  backdrop-filter: blur(8px);
+  cursor: zoom-in;
+  font: 21px/1 Arial,sans-serif;
+  transition: background .2s ease, transform .2s ease;
+}
+.photo-gallery .gallery-zoom:hover { background:#660000; transform:scale(1.08); }
+.photo-gallery .gallery-slide video { cursor: default; }
+.gallery-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 12000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4vh 4vw;
+  box-sizing: border-box;
+  background: rgba(5,5,5,.94);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity .25s ease, visibility .25s ease;
+}
+.gallery-lightbox.is-open { opacity:1; visibility:visible; }
+.gallery-lightbox-stage {
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:100%;
+  height:100%;
+}
+.gallery-lightbox-stage img,
+.gallery-lightbox-stage video {
+  display:block;
+  max-width:92vw;
+  max-height:90vh;
+  width:auto;
+  height:auto;
+  object-fit:contain;
+  box-shadow:0 18px 60px rgba(0,0,0,.5);
+}
+.gallery-lightbox-stage video { width:min(92vw,1200px); max-height:88vh; }
+.gallery-lightbox-close {
+  position:absolute;
+  top:22px;
+  right:24px;
+  z-index:2;
+  width:44px;
+  height:44px;
+  border:1px solid rgba(255,255,255,.65);
+  border-radius:50%;
+  background:rgba(0,0,0,.35);
+  color:#fff;
+  font-size:28px;
+  cursor:pointer;
+}
+body.gallery-lightbox-open { overflow:hidden !important; }
+@media (max-width:700px) {
+  .photo-gallery .gallery-arrow { width:36px !important;height:36px !important; }
+  .photo-gallery .gallery-prev { left:9px !important; }
+  .photo-gallery .gallery-next { right:9px !important; }
+  .photo-gallery .gallery-zoom { width:32px;height:32px;top:9px;right:9px; }
+}
+@media (prefers-reduced-motion:reduce) {
+  .photo-gallery .gallery-slide,.gallery-lightbox { transition:none !important; }
+}

@@ -1434,6 +1434,27 @@ setTimeout(hydrate,300);
     if(item instanceof Blob || item instanceof File) return {url:URL.createObjectURL(item), revoke:true};
     return {url:null,revoke:false};
   }
+  function openGalleryLightbox(media,isVideo){
+    let modal=document.getElementById('galleryLightbox');
+    if(!modal){
+      modal=document.createElement('div');modal.id='galleryLightbox';modal.className='gallery-lightbox';
+      modal.innerHTML='<button type="button" class="gallery-lightbox-close" aria-label="Close">×</button><div class="gallery-lightbox-stage"></div>';
+      document.body.appendChild(modal);
+      modal.querySelector('.gallery-lightbox-close').addEventListener('click',()=>closeGalleryLightbox());
+      modal.addEventListener('click',e=>{if(e.target===modal)closeGalleryLightbox();});
+      document.addEventListener('keydown',e=>{if(e.key==='Escape')closeGalleryLightbox();});
+    }
+    const stage=modal.querySelector('.gallery-lightbox-stage');stage.innerHTML='';
+    const enlarged=document.createElement(isVideo?'video':'img');enlarged.src=media.currentSrc||media.src;
+    if(isVideo){enlarged.controls=true;enlarged.autoplay=true;enlarged.playsInline=true;}
+    else enlarged.alt=media.alt||'Enlarged portfolio image';
+    stage.appendChild(enlarged);modal.classList.add('is-open');document.body.classList.add('gallery-lightbox-open');
+  }
+  function closeGalleryLightbox(){
+    const modal=document.getElementById('galleryLightbox');if(!modal)return;
+    const video=modal.querySelector('video');if(video)video.pause();
+    modal.classList.remove('is-open');document.body.classList.remove('gallery-lightbox-open');
+  }
   async function renderGallery(root,items){
     const track=root.querySelector('.gallery-track'),dots=root.querySelector('.gallery-dots'),empty=root.querySelector('.gallery-empty');
     if(!track||!dots)return;
@@ -1451,20 +1472,38 @@ setTimeout(hydrate,300);
       if(isVideo){media.controls=true;media.playsInline=true;media.preload='metadata';media.muted=false;media.defaultMuted=false;media.loop=true;}
       else {media.alt='Portfolio photo '+(i+1);}
       if(info.revoke)media.dataset.objectUrl=info.url;
-      s.appendChild(media);track.appendChild(s);
+      s.appendChild(media);
+      const zoom=document.createElement('button');zoom.type='button';zoom.className='gallery-zoom';zoom.setAttribute('aria-label','View image large');zoom.innerHTML='<span aria-hidden="true">⤢</span>';s.appendChild(zoom);
+      const openLarge=()=>openGalleryLightbox(media,isVideo);
+      zoom.addEventListener('click',openLarge);
+      media.addEventListener('click',()=>{if(!isVideo)openLarge();});
+      track.appendChild(s);
       const d=document.createElement('button');d.type='button';d.className='gallery-dot'+(i===0?' active':'');d.setAttribute('aria-label',(isVideo?'Media ':'Photo ')+(i+1));dots.appendChild(d);
     });
     let cur=0,timer=null;
-    const show=i=>{const slides=Array.from(track.querySelectorAll('.gallery-slide')),ds=dots.querySelectorAll('.gallery-dot');cur=(i+slides.length)%slides.length;slides.forEach((x,k)=>{x.classList.toggle('active',k===cur);const v=x.querySelector('video');if(v&&k!==cur)v.pause();});ds.forEach((x,k)=>x.classList.toggle('active',k===cur));};
+    const show=i=>{
+      const slides=Array.from(track.querySelectorAll('.gallery-slide')),ds=dots.querySelectorAll('.gallery-dot');
+      const previous=cur;cur=(i+slides.length)%slides.length;
+      slides.forEach((x,k)=>{
+        const rel=(k-cur+slides.length)%slides.length;
+        x.classList.toggle('active',k===cur);
+        x.classList.toggle('gallery-before',rel===slides.length-1);
+        x.classList.toggle('gallery-after',rel!==0&&rel!==slides.length-1);
+        x.style.transform=rel===0?'translateX(0)':(rel===slides.length-1?'translateX(-100%)':'translateX(100%)');
+        const v=x.querySelector('video');if(v&&k!==cur)v.pause();
+      });
+      ds.forEach((x,k)=>x.classList.toggle('active',k===cur));
+    };
     const restart=()=>{clearInterval(timer);if(track.querySelectorAll('.gallery-slide').length>1)timer=setInterval(()=>show(cur+1),3800);};
-    root.querySelector('.gallery-prev').onclick=()=>{show(cur-1);restart();};
-    root.querySelector('.gallery-next').onclick=()=>{show(cur+1);restart();};
+    const prev=root.querySelector('.gallery-prev'),next=root.querySelector('.gallery-next');
+    if(prev)prev.onclick=()=>{show(cur-1);restart();};
+    if(next)next.onclick=()=>{show(cur+1);restart();};
     dots.querySelectorAll('.gallery-dot').forEach((d,i)=>d.onclick=()=>{show(i);restart();});
     restart();
     document.addEventListener('visibilitychange',()=>{if(document.hidden)clearInterval(timer);else restart();});
     let swipeStartX=0,swipeStartY=0;
     root.addEventListener('touchstart',e=>{swipeStartX=e.changedTouches[0]?.clientX||0;swipeStartY=e.changedTouches[0]?.clientY||0;},{passive:true});
-    root.addEventListener('touchend',e=>{const dx=(e.changedTouches[0]?.clientX||0)-swipeStartX,dy=(e.changedTouches[0]?.clientY||0)-swipeStartY;if(Math.abs(dx)>40&&Math.abs(dx)>Math.abs(dy))show(cur+(dx<0?1:-1));},{passive:true});
+    root.addEventListener('touchend',e=>{const dx=(e.changedTouches[0]?.clientX||0)-swipeStartX,dy=(e.changedTouches[0]?.clientY||0)-swipeStartY;if(Math.abs(dx)>40&&Math.abs(dx)>Math.abs(dy)){show(cur+(dx<0?1:-1));restart();}},{passive:true});
   }
   async function boot(){for(const gallery of ['spa','24h']){const root=document.querySelector('[data-gallery="'+gallery+'"]');if(root)await renderGallery(root,await getGalleryItems(gallery))}}
   window.refreshCherryGalleries=boot;
