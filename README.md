@@ -16,3 +16,11 @@ After publishing, hard-refresh with Cmd+Shift+R. If Sport Content 7 still does n
 - Native fullscreen videos preserve their intrinsic aspect ratio, including portrait 9:16 videos.
 - Sport Content and School Content descriptions remain on one line; long lines can be scrolled horizontally without truncating the text.
 - Motorsport photo galleries advance automatically every 3.8 seconds, matching the About carousel timing. Manual arrows/dots reset the timer.
+
+
+## Follow-up corrections (30 October 2026)
+- Sport and School descriptions use natural wrapping: one line when they fit, a second line only when needed.
+- Video side previews use captured frames instead of empty black panels; placeholder backgrounds are transparent.
+- Carousel videos use a custom fullscreen control that fullscreen-expands the slide wrapper, preserving portrait 9:16 or landscape 16:9 orientation. Native fullscreen controls are disabled where supported.
+- Project video embeds load eagerly so they are already present when the visitor scrolls to those sections.
+- Spotify and YouTube preview embeds also load eagerly rather than waiting for the visitor to scroll close to them.\n

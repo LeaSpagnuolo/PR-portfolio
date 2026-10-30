@@ -421,7 +421,7 @@ async function render(){
       const frame=document.createElement("iframe");
       frame.className="youtube-embed-frame";
       frame.src=`https://www.youtube-nocookie.com/embed/${yt.id}?playsinline=1&rel=0`;
-      frame.title=yt.label; frame.loading="lazy";
+      frame.title=yt.label; frame.loading="eager";
       frame.allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";
       frame.allowFullscreen=true; frame.referrerPolicy="strict-origin-when-cross-origin";
       item.appendChild(frame); box.appendChild(item);
@@ -797,8 +797,8 @@ async function renderContentCarousel(box, metaItems, sectionKey){
     if(entry.youtubeId||entry.instagramUrl){
       const parts=(entry.ratio||"9 / 16").split("/").map(v=>Number(v.trim()));sizeFrame(frame,parts[0]||9,parts[1]||16);
       frame.classList.add(entry.instagramUrl?"content-carousel-instagram":"content-carousel-youtube");
-      if(entry.youtubeId){const preview=document.createElement("img");preview.className="content-carousel-preview";preview.alt="";preview.loading="lazy";preview.src=`https://i.ytimg.com/vi/${entry.youtubeId}/hqdefault.jpg`;preview.addEventListener("error",()=>{preview.src=`https://i.ytimg.com/vi/${entry.youtubeId}/mqdefault.jpg`;},{once:true});frame.appendChild(preview);}
-      const iframe=document.createElement("iframe");iframe.className="youtube-embed-frame";iframe.title=entry.label||"Embedded video";iframe.loading="lazy";iframe.allow="autoplay; encrypted-media; picture-in-picture; fullscreen";iframe.allowFullscreen=true;iframe.referrerPolicy="strict-origin-when-cross-origin";
+      if(entry.youtubeId){const preview=document.createElement("img");preview.className="content-carousel-preview";preview.alt="";preview.loading="eager";preview.src=`https://i.ytimg.com/vi/${entry.youtubeId}/hqdefault.jpg`;preview.addEventListener("error",()=>{preview.src=`https://i.ytimg.com/vi/${entry.youtubeId}/mqdefault.jpg`;},{once:true});frame.appendChild(preview);}
+      const iframe=document.createElement("iframe");iframe.className="youtube-embed-frame";iframe.title=entry.label||"Embedded video";iframe.loading="eager";iframe.allow="autoplay; encrypted-media; picture-in-picture; fullscreen";iframe.allowFullscreen=true;iframe.referrerPolicy="strict-origin-when-cross-origin";
       // Use the platform's native player controls. No custom sound overlay is placed
       // over the video, so subtitles and the seek bar remain fully accessible.
       iframe.dataset.embedUrl=entry.instagramUrl?`${entry.instagramUrl.replace(/\/$/,"")}/embed`:`https://www.youtube-nocookie.com/embed/${entry.youtubeId}?playsinline=1&rel=0&autoplay=0&mute=0&controls=1&loop=0`;
@@ -808,11 +808,31 @@ async function renderContentCarousel(box, metaItems, sectionKey){
       const f=entry.file?.blob||entry.file;
       const type=entry.isVideo||entry.file?.type==="video"||String(entry.file?.type||f?.type||"").startsWith("video/")||/\.(mp4|mov|webm|m4v)$/i.test(String(entry.path||entry.file?.name||entry.meta?.name||""));
       if(type){
-        const video=document.createElement("video");video.src=src||entry.path;video.playsInline=true;video.preload="metadata";video.loop=false;video.controls=true;video.muted=false;video.defaultMuted=false;video.setAttribute("playsinline","");video.setAttribute("controls","");
+        const video=document.createElement("video");video.src=src||entry.path;video.playsInline=true;video.preload="auto";video.loop=false;video.controls=true;video.muted=false;video.defaultMuted=false;video.controlsList="nofullscreen";video.setAttribute("playsinline","");video.setAttribute("controls","");video.setAttribute("controlsList","nofullscreen");
         video.addEventListener("loadedmetadata",()=>sizeFrame(frame,video.videoWidth,video.videoHeight),{once:true});
-        video.addEventListener("loadeddata",()=>{if(i!==index)video.pause();},{once:true});
-        video.addEventListener("error",()=>{frame.classList.add("content-carousel-media-error");video.remove();frame.textContent="MEDIA COULD NOT BE PLAYED IN THIS BROWSER";},{once:true});
-        frame.appendChild(video);
+        // Capture a real frame for the side preview, rather than showing a black placeholder.
+        video.addEventListener("loadeddata",()=>{
+          if(video.videoWidth&&video.videoHeight){
+            try{
+              const canvas=document.createElement("canvas");canvas.width=video.videoWidth;canvas.height=video.videoHeight;
+              canvas.getContext("2d").drawImage(video,0,0,canvas.width,canvas.height);
+              const thumb=document.createElement("img");thumb.className="content-carousel-video-thumb";thumb.alt="";thumb.src=canvas.toDataURL("image/jpeg",.78);
+              frame.insertBefore(thumb,video);
+            }catch(_){}
+          }
+          if(i!==index)video.pause();
+        },{once:true});
+        const fullscreen=document.createElement("button");fullscreen.type="button";fullscreen.className="content-carousel-fullscreen";fullscreen.setAttribute("aria-label","Open video fullscreen");fullscreen.title="Fullscreen";fullscreen.textContent="⛶";
+        fullscreen.addEventListener("click",async event=>{
+          event.preventDefault();event.stopPropagation();
+          try{
+            if(document.fullscreenElement){await document.exitFullscreen();}
+            else if(frame.requestFullscreen){await frame.requestFullscreen();}
+            else if(video.webkitEnterFullscreen){video.webkitEnterFullscreen();}
+          }catch(error){console.warn("Fullscreen unavailable",error);}
+        });
+        frame.appendChild(video);frame.appendChild(fullscreen);
+        video.addEventListener("error",()=>{frame.classList.add("content-carousel-media-error");video.remove();fullscreen.remove();frame.textContent="MEDIA COULD NOT BE PLAYED IN THIS BROWSER";},{once:true});
       }else{
         const img=document.createElement("img");img.alt=`${sectionKey==="sport1"?"Sport":"School"} content ${i+1}`;img.loading="lazy";img.src=src||entry.path;
         img.addEventListener("load",()=>sizeFrame(frame,img.naturalWidth,img.naturalHeight),{once:true});img.addEventListener("error",()=>{frame.classList.add("content-carousel-media-error");img.remove();frame.textContent="MEDIA COULD NOT BE PLAYED IN THIS BROWSER";},{once:true});frame.appendChild(img);
@@ -827,6 +847,8 @@ async function renderContentCarousel(box, metaItems, sectionKey){
       slide.classList.toggle("is-active",active);slide.classList.toggle("is-prev",prev);slide.classList.toggle("is-next",next);slide.classList.toggle("is-hidden",!active&&!prev&&!next);
       slide.style.visibility=active||prev||next?"visible":"hidden";slide.style.pointerEvents=active?"auto":"none";slide.style.opacity=active?"1":".58";slide.style.zIndex=active?"3":"1";
       const video=slide.querySelector("video");
+      const thumb=slide.querySelector(".content-carousel-video-thumb");
+      if(thumb)thumb.style.display=active?"none":"block";
       if(video){
         // Never autoplay. The visitor uses the browser's own Play/volume/seek controls.
         video.controls=true;video.muted=false;video.defaultMuted=false;
@@ -1339,7 +1361,7 @@ setTimeout(hydrate,300);
       document.querySelectorAll('[data-spotify-embed="podcast'+n+'"]').forEach(box=>{
         const embed=spotifyEmbedUrl(x["podcast"+n]||"");
         box.innerHTML=embed
-          ? '<iframe src="'+embed+'" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>'
+          ? '<iframe src="'+embed+'" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="eager"></iframe>'
           : '';
       });
     });

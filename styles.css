@@ -4242,3 +4242,98 @@ video:-webkit-full-screen {
 }
 
 /* Sport Auto / Motorsport photo galleries rotate like the About carousel (3.8 s). */
+
+
+/* CHERRY LINE — correction pass 2026-10-30 */
+
+/* Descriptions wrap only when they genuinely reach the end of the available line. */
+#work .content-card .work-caption p[data-key="sportText"],
+#work .content-card .work-caption p[data-key="schoolText"] {
+  display: block !important;
+  width: 100% !important;
+  max-width: none !important;
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  overflow-wrap: normal !important;
+  word-break: normal !important;
+}
+
+/* Avoid black/white placeholder panels on side carousel previews. */
+#work .content-carousel-slide,
+#work .content-carousel-slide video,
+#work .content-carousel-slide img,
+#work .content-carousel-slide .content-carousel-preview {
+  background: transparent !important;
+}
+#work .content-carousel-slide .content-carousel-preview {
+  object-fit: cover !important;
+}
+
+/* Fullscreen is applied to the slide wrapper, not the native video surface,
+   so portrait footage stays portrait instead of being forced into landscape. */
+#work .content-carousel-slide:fullscreen,
+#work .content-carousel-slide:-webkit-full-screen {
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  max-width: none !important;
+  max-height: none !important;
+  left: 0 !important;
+  top: 0 !important;
+  transform: none !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: #000 !important;
+  z-index: 2147483647 !important;
+}
+#work .content-carousel-slide:fullscreen > video,
+#work .content-carousel-slide:-webkit-full-screen > video {
+  position: relative !important;
+  inset: auto !important;
+  width: auto !important;
+  height: auto !important;
+  max-width: 100vw !important;
+  max-height: 100vh !important;
+  object-fit: contain !important;
+  aspect-ratio: auto !important;
+  background: #000 !important;
+}
+#work .content-carousel-fullscreen {
+  position: absolute !important;
+  right: 10px !important;
+  top: 10px !important;
+  z-index: 50 !important;
+  width: 38px !important;
+  height: 38px !important;
+  border: 1px solid rgba(255,255,255,.8) !important;
+  border-radius: 2px !important;
+  background: rgba(20,20,20,.88) !important;
+  color: #fff !important;
+  font-size: 22px !important;
+  line-height: 1 !important;
+  cursor: pointer !important;
+}
+#work .content-carousel-slide:fullscreen .content-carousel-fullscreen,
+#work .content-carousel-slide:-webkit-full-screen .content-carousel-fullscreen {
+  position: fixed !important;
+}
+
+#work .content-carousel-slide > .content-carousel-video-thumb {
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 2 !important;
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain !important;
+  background: transparent !important;
+  pointer-events: none !important;
+}
+#work .content-carousel-slide.is-active > .content-carousel-video-thumb { display: none !important; }
+#work .content-carousel-slide.is-active > video { z-index: 3 !important; }
+
+#work .content-carousel-slide:not(.is-active) > video { z-index: 1 !important; }
+#work .content-carousel-slide:not(.is-active) > .content-carousel-video-thumb { z-index: 2 !important; }
