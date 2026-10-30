@@ -4933,3 +4933,243 @@ body.gallery-lightbox-open { overflow:hidden !important; }
   background: var(--cream) !important;
   color: var(--black) !important;
 }
+
+/* MOBILE REFINEMENT V131 — dedicated small-screen layout; desktop art direction untouched. */
+@media (max-width: 850px) {
+  html { scroll-padding-top: 94px; }
+  body { overflow-x: hidden; }
+  main { margin-left: 0 !important; width: 100%; }
+
+  /* Compact two-line navigation with swipeable section links. */
+  .nav {
+    position: sticky !important;
+    top: 0 !important;
+    left: auto !important;
+    right: auto !important;
+    height: 78px !important;
+    min-height: 78px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    justify-content: center !important;
+    gap: 9px !important;
+    padding: 11px 20px 9px !important;
+    border-bottom: 1px solid rgba(244,240,233,.14) !important;
+    background: rgba(11,11,11,.96) !important;
+    backdrop-filter: blur(14px);
+  }
+  .nav .brand { display: block !important; width: max-content; font-size: 17px !important; line-height: 1 !important; }
+  .nav nav {
+    display: flex !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    gap: 19px !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    white-space: nowrap !important;
+    scrollbar-width: none !important;
+    -webkit-overflow-scrolling: touch;
+    padding: 0 0 2px !important;
+  }
+  .nav nav::-webkit-scrollbar { display: none !important; }
+  .nav nav a { flex: 0 0 auto !important; font-size: 9px !important; letter-spacing: .11em !important; padding: 2px 0 !important; }
+  .nav .edit-trigger { display: none !important; }
+  section { scroll-margin-top: 88px !important; }
+
+  /* Consistent mobile page gutters and natural section heights. */
+  .section, .hero {
+    width: 100% !important;
+    min-height: 0 !important;
+    height: auto !important;
+    padding: 66px 22px !important;
+    overflow: visible !important;
+  }
+  .section > * { min-width: 0 !important; }
+  .section-head { margin-bottom: 30px !important; gap: 20px !important; }
+  h2 { font-size: clamp(42px, 9vw, 64px) !important; line-height: .94 !important; }
+  p, li { overflow-wrap: break-word; }
+
+  /* Hero becomes a deliberate vertical composition, with the portrait below the copy. */
+  .hero {
+    display: block !important;
+    padding-top: 58px !important;
+    padding-bottom: 58px !important;
+  }
+  .hero-copy { width: 100% !important; max-width: 620px !important; margin: 0 auto !important; }
+  .hero-main-row {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 24px !important;
+    width: 100% !important;
+  }
+  .hero-text-block { display: block !important; width: 100% !important; min-width: 0 !important; }
+  .hero-text-block > .eyebrow { margin: 0 0 18px !important; font-size: 8px !important; line-height: 1.6 !important; letter-spacing: .12em !important; }
+  .hero-text-block > h1 {
+    width: 100% !important;
+    margin: 0 !important;
+    font-size: clamp(43px, 12vw, 62px) !important;
+    line-height: .88 !important;
+    letter-spacing: -.065em !important;
+    overflow-wrap: normal !important;
+  }
+  .hero-text-block > h1 em { white-space: nowrap !important; font-style: italic !important; }
+  .hero-lead { max-width: 34ch !important; margin: 22px 0 12px !important; font-size: 17px !important; line-height: 1.45 !important; }
+  .hero-meta { max-width: 48ch !important; margin: 0 !important; font-size: 8px !important; line-height: 1.65 !important; letter-spacing: .08em !important; }
+  .hero-visual {
+    display: block !important;
+    width: min(100%, 300px) !important;
+    max-width: 300px !important;
+    margin: 0 auto !important;
+    justify-self: center !important;
+  }
+  .hero-visual .image-placeholder {
+    width: 100% !important;
+    aspect-ratio: 3 / 4 !important;
+    height: auto !important;
+    min-height: 0 !important;
+    padding: 0 !important;
+  }
+  .hero-visual .image-placeholder > img,
+  .hero-visual .image-placeholder > video,
+  .hero-visual .image-placeholder .media-managed-item,
+  .hero-visual .image-placeholder .media-managed-item > img,
+  .hero-visual .image-placeholder .media-managed-item > video {
+    width: 100% !important; height: 100% !important; min-height: 0 !important; object-fit: cover !important;
+  }
+  .hero-visual .image-note { margin-top: 9px !important; font-size: 8px !important; text-align: center !important; }
+  .hero .buttons { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 9px !important; margin-top: 24px !important; }
+  .hero .btn { min-width: 0 !important; padding: 13px 8px !important; font-size: 9px !important; white-space: nowrap !important; }
+
+  /* About and International: readable text first, media at a controlled width. */
+  .split, #about.about-layout, #international.section {
+    display: grid !important;
+    grid-template-columns: minmax(0,1fr) !important;
+    gap: 28px !important;
+    align-items: start !important;
+  }
+  #about .about-media-primary { width: 100% !important; max-width: 340px !important; margin: 0 auto !important; }
+  #about .about-media-primary > span { display: block !important; margin-top: 10px !important; font-size: 8px !important; }
+  #about .about-copy { width: 100% !important; min-width: 0 !important; }
+  #about .about-heading h2 { font-size: clamp(40px, 10vw, 58px) !important; }
+  .prose { max-width: 100% !important; font-size: 15px !important; line-height: 1.7 !important; }
+  .prose p { margin-bottom: 17px !important; }
+  #international > div:first-child { min-width: 0 !important; }
+  #international .w2w-media { width: 100% !important; max-width: 420px !important; margin: 22px auto 0 !important; }
+
+  /* Experience: full-width media above its copy, never squeezed into narrow columns. */
+  #experience.section { display: block !important; padding-top: 66px !important; padding-bottom: 66px !important; }
+  #experience > .section-head { margin-bottom: 28px !important; }
+  #experience > .experience-card,
+  #experience > .experience-card.reverse {
+    display: grid !important;
+    grid-template-columns: minmax(0,1fr) !important;
+    gap: 17px !important;
+    padding: 25px 0 0 !important;
+    margin: 0 0 30px !important;
+    min-height: 0 !important;
+  }
+  #experience .exp-media { width: 100% !important; max-width: 100% !important; }
+  #experience .exp-media .image-placeholder { width: 100% !important; aspect-ratio: 16 / 9 !important; min-height: 0 !important; }
+  #experience .exp-copy { width: 100% !important; }
+  #experience .exp-copy h3 { font-size: clamp(28px, 8vw, 38px) !important; }
+  #experience .exp-copy > p:not(.tag) { max-width: none !important; font-size: 14px !important; line-height: 1.65 !important; }
+  #experience .exp-copy ul { font-size: 12px !important; line-height: 1.55 !important; }
+
+  /* Work: one project per row, with filters that wrap cleanly. */
+  #work.section { padding-top: 66px !important; }
+  #work .section-head { display: flex !important; flex-direction: column !important; align-items: stretch !important; gap: 20px !important; }
+  #work .section-head h2 { font-size: clamp(44px, 10vw, 62px) !important; }
+  #work .filters { display: flex !important; width: 100% !important; max-width: none !important; justify-content: flex-start !important; flex-wrap: wrap !important; gap: 8px 15px !important; }
+  #work .filters button { padding: 7px 0 !important; font-size: 9px !important; }
+  #work .content-subfilters { display: none !important; width: 100% !important; margin: -6px 0 20px !important; flex-wrap: wrap !important; gap: 13px !important; }
+  #work .content-subfilters.visible { display: flex !important; }
+  #work .work-grid { display: grid !important; grid-template-columns: minmax(0,1fr) !important; gap: 42px !important; }
+  #work .work-item, #work .work-item.large { display: block !important; width: 100% !important; min-width: 0 !important; grid-column: auto !important; }
+  #work .work-item > h3 { font-size: clamp(27px, 7.5vw, 38px) !important; line-height: .98 !important; margin: 0 0 13px !important; }
+  #work .work-item.large > h3 { font-size: clamp(32px, 9vw, 46px) !important; margin-bottom: 15px !important; }
+  #work .work-item .image-placeholder { width: 100% !important; max-width: 100% !important; min-height: 0 !important; height: auto !important; aspect-ratio: 4 / 3 !important; }
+  #work .work-item.large > .image-placeholder { width: 100% !important; max-height: none !important; aspect-ratio: 16 / 10 !important; }
+  #work .work-item .image-placeholder > img,
+  #work .work-item .image-placeholder > video,
+  #work .work-item .image-placeholder > .media-managed-item,
+  #work .work-item .image-placeholder > .media-managed-item > img,
+  #work .work-item .image-placeholder > .media-managed-item > video {
+    display: block !important; width: 100% !important; height: 100% !important; min-height: 0 !important; max-height: none !important; object-fit: contain !important;
+  }
+  #work .work-item.large > .conception-side-copy { display: block !important; width: 100% !important; margin: 15px 0 0 !important; padding: 17px !important; }
+  #work .work-item.large > .work-caption { display: block !important; width: 100% !important; margin-top: 15px !important; padding-top: 13px !important; }
+  #work .work-item.large > .work-caption span { margin-bottom: 9px !important; }
+  #work .work-caption p { font-size: 14px !important; line-height: 1.65 !important; }
+  #work .work-item[data-type="podcast"] { padding: 17px !important; }
+  #work .work-item[data-type="podcast"] .spotify-embed,
+  #work .work-item[data-type="podcast"] .spotify-embed iframe { width: 100% !important; max-width: 100% !important; }
+  #work .work-item.benito-interview > .image-placeholder,
+  #work .work-item.average-rob-interview > .image-placeholder { width: 100% !important; max-width: 100% !important; }
+  #work .work-item.average-rob-interview > .image-placeholder > .media-managed-item,
+  #work .work-item.benito-interview > .image-placeholder > .media-managed-item { width: 100% !important; max-width: 100% !important; }
+
+  /* Keep Content carousels legible and centered on small screens. */
+  #work .content-carousel-stage { width: 100% !important; max-width: 100% !important; height: min(92vw, 390px) !important; min-height: 250px !important; }
+  #work .content-carousel-track { gap: 10px !important; }
+  #work .content-carousel-slide { max-width: 78vw !important; }
+
+  /* Motorsport: clear one-column storytelling and usable gallery controls. */
+  #motorsport .moto-heading { display: grid !important; grid-template-columns: minmax(0,1fr) !important; gap: 18px !important; }
+  #motorsport .spa-trace { width: 100% !important; min-height: 0 !important; justify-content: flex-start !important; }
+  #motorsport .spa-trace img, #motorsport .spa-trace svg { width: min(58vw,190px) !important; max-width: 190px !important; max-height: 120px !important; }
+  #motorsport .spa-label { left: auto !important; right: 0 !important; bottom: 0 !important; font-size: 7px !important; }
+  #motorsport .motorsport-intro { display: grid !important; grid-template-columns: minmax(0,1fr) !important; gap: 18px !important; margin-bottom: 32px !important; }
+  #motorsport .motorsport-intro > p { font-size: 16px !important; line-height: 1.65 !important; }
+  #motorsport .moto-list { display: grid !important; grid-template-columns: repeat(2,minmax(0,1fr)) !important; gap: 9px 12px !important; font-size: 8px !important; }
+  #motorsport .moto-grid { display: grid !important; grid-template-columns: minmax(0,1fr) !important; gap: 36px !important; }
+  #motorsport .moto-grid article { min-width: 0 !important; }
+  #motorsport .photo-gallery { width: 100% !important; max-width: 100% !important; aspect-ratio: 4 / 3 !important; }
+  #motorsport .photo-gallery .gallery-arrow { width: 34px !important; height: 34px !important; }
+  #motorsport .moto-grid article > p:not(.tag) { font-size: 14px !important; line-height: 1.65 !important; }
+  #motorsport .moto-grid h3 { font-size: 34px !important; line-height: .98 !important; }
+
+  /* Skills and working style: two balanced columns rather than a long cramped list. */
+  #skills .skill-columns { display: grid !important; grid-template-columns: repeat(2,minmax(0,1fr)) !important; gap: 24px 17px !important; margin-top: 38px !important; }
+  #skills .skill-columns > div { min-width: 0 !important; }
+  #skills .skill-columns h3 { font-size: 10px !important; }
+  #skills .skill-columns p { font-size: 12px !important; line-height: 1.7 !important; overflow-wrap: anywhere !important; }
+  #skills .languages { display: flex !important; flex-wrap: wrap !important; gap: 8px !important; margin-top: 38px !important; }
+  #skills .languages span { font-size: 8px !important; padding: 7px 8px !important; }
+  .how-grid { display: grid !important; grid-template-columns: repeat(2,minmax(0,1fr)) !important; gap: 24px 17px !important; margin-top: 38px !important; }
+  .how-grid > div { min-width: 0 !important; }
+  .how-grid h3 { font-size: 10px !important; }
+  .how-grid p { font-size: 13px !important; line-height: 1.6 !important; }
+
+  /* Contact: stack the two panels and keep every action tappable. */
+  #contact.contact { display: grid !important; grid-template-columns: minmax(0,1fr) !important; gap: 30px !important; min-height: 0 !important; }
+  #contact .contact-main, #contact .contact-panel { width: 100% !important; min-width: 0 !important; }
+  #contact .contact-main h2 { font-size: clamp(42px, 10vw, 60px) !important; }
+  #contact .contact-intro { font-size: 16px !important; line-height: 1.6 !important; }
+  #contact .contact-links { margin-top: 24px !important; }
+  #contact .contact-links > a { min-width: 0 !important; gap: 10px !important; padding: 13px 0 !important; }
+  #contact .contact-link-label strong { overflow-wrap: anywhere !important; }
+  #contact .contact-cta { width: 100% !important; text-align: center !important; }
+  #contact .contact-graphic { margin-top: 28px !important; }
+  #contact .contact-copyright { position: static !important; display: block !important; margin-top: 24px !important; }
+  #contact:after { display: none !important; }
+}
+
+@media (max-width: 520px) {
+  .section, .hero { padding-left: 20px !important; padding-right: 20px !important; }
+  .hero-text-block > h1 { font-size: clamp(42px, 11.5vw, 54px) !important; }
+  .hero-visual { width: min(100%, 270px) !important; max-width: 270px !important; }
+  #about .about-media-primary { max-width: 300px !important; }
+  #work .content-carousel-stage { height: min(96vw, 350px) !important; min-height: 230px !important; }
+  #skills .skill-columns, .how-grid { gap: 22px 14px !important; }
+  #contact .contact-link-label strong { font-size: 10px !important; }
+}
+
+@media (max-width: 360px) {
+  .nav { padding-left: 16px !important; padding-right: 16px !important; }
+  .nav nav { gap: 15px !important; }
+  .section, .hero { padding-left: 17px !important; padding-right: 17px !important; }
+  .hero-text-block > h1 { font-size: 40px !important; }
+  .hero .buttons { grid-template-columns: 1fr !important; }
+  #skills .skill-columns, .how-grid { grid-template-columns: minmax(0,1fr) !important; }
+}

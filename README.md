@@ -61,3 +61,7 @@ After publishing, hard-refresh with Cmd+Shift+R. If Sport Content 7 still does n
 
 ## CV download
 - `CV_Lea_Spagnuolo.pdf` is linked from the Contact section via the “DOWNLOAD MY CV” link. Keep this PDF at the repository root alongside `index.html`.
+
+
+## Mobile refinement V131
+The stylesheet includes a dedicated responsive layout for phones and tablets: swipeable two-line navigation, a vertical 3:4 hero composition, single-column experience/work/motorsport layouts, responsive media frames, and improved spacing and tap targets. Existing content, project data, media logic, galleries, filters, and CV download are retained. Keep the existing `Media/` folder unchanged when updating the repository.
