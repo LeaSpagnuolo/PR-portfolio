@@ -810,17 +810,24 @@ async function renderContentCarousel(box, metaItems, sectionKey){
       if(type){
         const video=document.createElement("video");video.src=src||entry.path;video.playsInline=true;video.preload="auto";video.loop=false;video.controls=true;video.muted=false;video.defaultMuted=false;video.controlsList="nofullscreen";video.setAttribute("playsinline","");video.setAttribute("controls","");video.setAttribute("controlsList","nofullscreen");
         video.addEventListener("loadedmetadata",()=>sizeFrame(frame,video.videoWidth,video.videoHeight),{once:true});
-        // Capture a real frame for the side preview, rather than showing a black placeholder.
-        video.addEventListener("loadeddata",()=>{
-          if(video.videoWidth&&video.videoHeight){
-            try{
-              const canvas=document.createElement("canvas");canvas.width=video.videoWidth;canvas.height=video.videoHeight;
-              canvas.getContext("2d").drawImage(video,0,0,canvas.width,canvas.height);
-              const thumb=document.createElement("img");thumb.className="content-carousel-video-thumb";thumb.alt="";thumb.src=canvas.toDataURL("image/jpeg",.78);
-              frame.insertBefore(thumb,video);
-            }catch(_){}
-          }
-          if(i!==index)video.pause();
+        // Generate a real visual thumbnail from a decoded video frame for side slides.
+        // Keep trying briefly if the browser has metadata but has not decoded a frame yet.
+        let thumbnailMade=false;
+        const makeVideoThumbnail=()=>{
+          if(thumbnailMade||!video.videoWidth||!video.videoHeight||video.readyState<2)return;
+          try{
+            const canvas=document.createElement("canvas");canvas.width=video.videoWidth;canvas.height=video.videoHeight;
+            const context=canvas.getContext("2d");context.drawImage(video,0,0,canvas.width,canvas.height);
+            const thumb=document.createElement("img");thumb.className="content-carousel-video-thumb";thumb.alt="";thumb.decoding="async";thumb.src=canvas.toDataURL("image/jpeg",.86);
+            frame.insertBefore(thumb,video);thumbnailMade=true;
+          }catch(error){console.debug("Video preview frame not available yet",error);}
+        };
+        video.addEventListener("loadeddata",()=>{makeVideoThumbnail();if(i!==index)video.pause();},{once:true});
+        video.addEventListener("seeked",makeVideoThumbnail,{once:true});
+        video.addEventListener("loadedmetadata",()=>{
+          if(video.duration>0){try{video.currentTime=Math.min(.18,video.duration/3);}catch(_){}}
+          setTimeout(makeVideoThumbnail,350);
+          setTimeout(makeVideoThumbnail,1100);
         },{once:true});
         const fullscreen=document.createElement("button");fullscreen.type="button";fullscreen.className="content-carousel-fullscreen";fullscreen.setAttribute("aria-label","Open video fullscreen");fullscreen.title="Fullscreen";fullscreen.textContent="⛶";
         fullscreen.addEventListener("click",async event=>{

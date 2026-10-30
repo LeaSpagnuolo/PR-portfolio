@@ -24,3 +24,9 @@ After publishing, hard-refresh with Cmd+Shift+R. If Sport Content 7 still does n
 - Carousel videos use a custom fullscreen control that fullscreen-expands the slide wrapper, preserving portrait 9:16 or landscape 16:9 orientation. Native fullscreen controls are disabled where supported.
 - Project video embeds load eagerly so they are already present when the visitor scrolls to those sections.
 - Spotify and YouTube preview embeds also load eagerly rather than waiting for the visitor to scroll close to them.\n
+## Final finishing pass (30 October 2026)
+- Let's Talk has an explicit full-bleed cherry background and no top border/seam.
+- Sport Content and School Content descriptions wrap naturally at the available width on desktop and mobile; no horizontal clipping or line clamp.
+- Video side thumbnails are generated from a decoded frame of the actual video, with a short seek to avoid blank opening frames.
+- Motorsport galleries use a more distinctive angular cherry / motorsport visual treatment while retaining their existing controls and automatic rotation.
+- Fullscreen on a content-carousel video opens the full frame and keeps the video's native aspect ratio.
