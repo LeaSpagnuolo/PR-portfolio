@@ -30,3 +30,10 @@ After publishing, hard-refresh with Cmd+Shift+R. If Sport Content 7 still does n
 - Video side thumbnails are generated from a decoded frame of the actual video, with a short seek to avoid blank opening frames.
 - Motorsport galleries use a more distinctive angular cherry / motorsport visual treatment while retaining their existing controls and automatic rotation.
 - Fullscreen on a content-carousel video opens the full frame and keeps the video's native aspect ratio.
+
+
+## Final finishing pass (30 October 2026)
+- Let's Talk fills the full laptop/desktop viewport in cherry burgundy and covers the seam above.
+- Formula / Motorsport gallery photos now crossfade with a gentle scale/settle motion instead of a hard cut.
+- Video side thumbnails are captured around 1.05 seconds, with a second attempt further into clips if the first chosen frame is nearly black.
+- Instagram side cards use a dark cherry reel-style poster instead of the blank white unloaded embed; the actual Instagram player is loaded for the centered active slide.

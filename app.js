@@ -798,6 +798,9 @@ async function renderContentCarousel(box, metaItems, sectionKey){
       const parts=(entry.ratio||"9 / 16").split("/").map(v=>Number(v.trim()));sizeFrame(frame,parts[0]||9,parts[1]||16);
       frame.classList.add(entry.instagramUrl?"content-carousel-instagram":"content-carousel-youtube");
       if(entry.youtubeId){const preview=document.createElement("img");preview.className="content-carousel-preview";preview.alt="";preview.loading="eager";preview.src=`https://i.ytimg.com/vi/${entry.youtubeId}/hqdefault.jpg`;preview.addEventListener("error",()=>{preview.src=`https://i.ytimg.com/vi/${entry.youtubeId}/mqdefault.jpg`;},{once:true});frame.appendChild(preview);}
+      if(entry.instagramUrl){
+        const preview=document.createElement("div");preview.className="content-carousel-instagram-preview";preview.innerHTML='<span class="instagram-preview-mark">IG</span><span class="instagram-preview-play">▶</span><span class="instagram-preview-label">INSTAGRAM REEL</span>';frame.appendChild(preview);
+      }
       const iframe=document.createElement("iframe");iframe.className="youtube-embed-frame";iframe.title=entry.label||"Embedded video";iframe.loading="eager";iframe.allow="autoplay; encrypted-media; picture-in-picture; fullscreen";iframe.allowFullscreen=true;iframe.referrerPolicy="strict-origin-when-cross-origin";
       // Use the platform's native player controls. No custom sound overlay is placed
       // over the video, so subtitles and the seek bar remain fully accessible.
@@ -810,25 +813,36 @@ async function renderContentCarousel(box, metaItems, sectionKey){
       if(type){
         const video=document.createElement("video");video.src=src||entry.path;video.playsInline=true;video.preload="auto";video.loop=false;video.controls=true;video.muted=false;video.defaultMuted=false;video.controlsList="nofullscreen";video.setAttribute("playsinline","");video.setAttribute("controls","");video.setAttribute("controlsList","nofullscreen");
         video.addEventListener("loadedmetadata",()=>sizeFrame(frame,video.videoWidth,video.videoHeight),{once:true});
-        // Generate a real visual thumbnail from a decoded video frame for side slides.
-        // Keep trying briefly if the browser has metadata but has not decoded a frame yet.
-        let thumbnailMade=false;
+        // Capture a meaningful frame around the first second, rather than the
+        // opening slate/black frame. Side cards use this real video still.
+        let thumbnailMade=false,thumbnailSeekStarted=false;
         const makeVideoThumbnail=()=>{
           if(thumbnailMade||!video.videoWidth||!video.videoHeight||video.readyState<2)return;
           try{
             const canvas=document.createElement("canvas");canvas.width=video.videoWidth;canvas.height=video.videoHeight;
             const context=canvas.getContext("2d");context.drawImage(video,0,0,canvas.width,canvas.height);
-            const thumb=document.createElement("img");thumb.className="content-carousel-video-thumb";thumb.alt="";thumb.decoding="async";thumb.src=canvas.toDataURL("image/jpeg",.86);
+            const pixels=context.getImageData(0,0,Math.min(64,canvas.width),Math.min(64,canvas.height)).data;
+            let total=0;for(let p=0;p<pixels.length;p+=4)total+=(pixels[p]+pixels[p+1]+pixels[p+2])/3;
+            const average=total/Math.max(1,pixels.length/4);
+            // If the chosen moment is still almost black, move slightly further in.
+            if(average<13 && video.duration>1.7 && video.currentTime<1.45){
+              try{video.currentTime=Math.min(1.6,video.duration*.55);return;}catch(_){}
+            }
+            const thumb=document.createElement("img");thumb.className="content-carousel-video-thumb";thumb.alt="Video preview";thumb.decoding="async";thumb.src=canvas.toDataURL("image/jpeg",.88);
             frame.insertBefore(thumb,video);thumbnailMade=true;
           }catch(error){console.debug("Video preview frame not available yet",error);}
         };
-        video.addEventListener("loadeddata",()=>{makeVideoThumbnail();if(i!==index)video.pause();},{once:true});
-        video.addEventListener("seeked",makeVideoThumbnail,{once:true});
-        video.addEventListener("loadedmetadata",()=>{
-          if(video.duration>0){try{video.currentTime=Math.min(.18,video.duration/3);}catch(_){}}
-          setTimeout(makeVideoThumbnail,350);
-          setTimeout(makeVideoThumbnail,1100);
-        },{once:true});
+        const seekToPreview=()=>{
+          if(thumbnailSeekStarted||!Number.isFinite(video.duration)||video.duration<=0)return;
+          thumbnailSeekStarted=true;
+          try{video.currentTime=Math.min(1.05,Math.max(.15,video.duration*.22));}
+          catch(_){setTimeout(makeVideoThumbnail,700);}
+        };
+        video.addEventListener("loadeddata",()=>{if(i!==index)video.pause();seekToPreview();makeVideoThumbnail();});
+        video.addEventListener("seeked",makeVideoThumbnail);
+        video.addEventListener("loadedmetadata",()=>{seekToPreview();});
+        setTimeout(()=>{if(!thumbnailMade){seekToPreview();makeVideoThumbnail();}},900);
+        setTimeout(()=>{if(!thumbnailMade)makeVideoThumbnail();},1800);
         const fullscreen=document.createElement("button");fullscreen.type="button";fullscreen.className="content-carousel-fullscreen";fullscreen.setAttribute("aria-label","Open video fullscreen");fullscreen.title="Fullscreen";fullscreen.textContent="⛶";
         fullscreen.addEventListener("click",async event=>{
           event.preventDefault();event.stopPropagation();
@@ -861,7 +875,7 @@ async function renderContentCarousel(box, metaItems, sectionKey){
         video.controls=true;video.muted=false;video.defaultMuted=false;
         if(!active){video.pause();try{video.currentTime=0;}catch(_){}}
       }
-      const iframe=slide.querySelector("iframe");if(iframe){if(active){if(iframe.src!==iframe.dataset.embedUrl)iframe.src=iframe.dataset.embedUrl;}else if(iframe.src&&iframe.src!=="about:blank"){iframe.src="about:blank";}}
+      const iframe=slide.querySelector("iframe");if(iframe){iframe.style.visibility=active?"visible":"hidden";if(active){if(iframe.src!==iframe.dataset.embedUrl)iframe.src=iframe.dataset.embedUrl;}else if(iframe.src&&iframe.src!=="about:blank"){iframe.src="about:blank";}}
       if(!active)slide.classList.remove("needs-play");
     });
     counter.textContent=`${index+1} / ${slides.length}`;

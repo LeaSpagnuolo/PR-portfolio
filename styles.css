@@ -4513,3 +4513,102 @@ video:-webkit-full-screen {
   width: 38px !important;
   background: #a60000 !important;
 }
+
+
+/* CHERRY LINE — last visual refinements, 30 October 2026 */
+
+/* Contact is a complete viewport panel on laptop/desktop, with no pale seam above. */
+@media (min-width: 851px) {
+  #contact.contact {
+    position: relative !important;
+    box-sizing: border-box !important;
+    min-height: 100vh !important;
+    min-height: 100svh !important;
+    margin-top: -2px !important;
+    padding-top: clamp(56px, 7vh, 92px) !important;
+    padding-bottom: clamp(56px, 7vh, 92px) !important;
+    background: #660000 !important;
+    background-color: #660000 !important;
+    box-shadow: 0 -28px 0 #660000 !important;
+  }
+}
+
+/* Formula / Motorsport galleries: a slower crossfade with a subtle editorial
+   scale transition instead of a hard cut between photographs. */
+.gallery-slide {
+  opacity: 0 !important;
+  transform: scale(.975) translateY(7px) !important;
+  transition:
+    opacity .82s ease-in-out,
+    transform .95s cubic-bezier(.22,.61,.36,1) !important;
+  will-change: opacity, transform;
+}
+.gallery-slide.active {
+  opacity: 1 !important;
+  transform: scale(1) translateY(0) !important;
+}
+
+/* Smooth movement between the three Sport/School carousel positions. */
+#work .content-carousel-slide {
+  transition:
+    left .78s cubic-bezier(.22,.61,.36,1),
+    opacity .62s ease-in-out,
+    transform .78s cubic-bezier(.22,.61,.36,1) !important;
+  will-change: left, opacity, transform;
+}
+
+/* Instagram side cards show a designed reel preview rather than a blank white
+   unloaded Instagram iframe. The real Instagram player appears on the active card. */
+#work .content-carousel-instagram-preview {
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 3 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 12px !important;
+  color: #fff !important;
+  background:
+    radial-gradient(circle at 68% 22%, rgba(190,42,76,.52), transparent 34%),
+    linear-gradient(145deg, #270b19 0%, #660000 52%, #130d12 100%) !important;
+  border: 1px solid rgba(255,255,255,.22) !important;
+  pointer-events: none !important;
+}
+#work .content-carousel-instagram-preview::before {
+  content: "" !important;
+  position: absolute !important;
+  inset: 9px !important;
+  border: 1px solid rgba(255,255,255,.22) !important;
+  pointer-events: none !important;
+}
+#work .instagram-preview-mark {
+  position: absolute !important;
+  top: 18px !important;
+  left: 18px !important;
+  font: 700 10px/1 Arial,sans-serif !important;
+  letter-spacing: .18em !important;
+  border: 1px solid rgba(255,255,255,.7) !important;
+  padding: 6px 7px !important;
+}
+#work .instagram-preview-play {
+  display: grid !important;
+  place-items: center !important;
+  width: 54px !important;
+  height: 54px !important;
+  padding-left: 4px !important;
+  border: 1px solid rgba(255,255,255,.8) !important;
+  border-radius: 50% !important;
+  background: rgba(255,255,255,.10) !important;
+  font-size: 18px !important;
+}
+#work .instagram-preview-label {
+  font: 700 9px/1 Arial,sans-serif !important;
+  letter-spacing: .2em !important;
+}
+#work .content-carousel-instagram.is-active .content-carousel-instagram-preview {
+  display: none !important;
+}
+#work .content-carousel-instagram:not(.is-active) .youtube-embed-frame {
+  visibility: hidden !important;
+}
