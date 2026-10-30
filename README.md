@@ -37,3 +37,10 @@ After publishing, hard-refresh with Cmd+Shift+R. If Sport Content 7 still does n
 - Formula / Motorsport gallery photos now crossfade with a gentle scale/settle motion instead of a hard cut.
 - Video side thumbnails are captured around 1.05 seconds, with a second attempt further into clips if the first chosen frame is nearly black.
 - Instagram side cards use a dark cherry reel-style poster instead of the blank white unloaded embed; the actual Instagram player is loaded for the centered active slide.
+
+
+## CHERRY LINE V5 — Hero spacing + personal soundtrack
+- On desktop/laptop, the Hero portrait is shifted 5 mm to the right for more breathing room beside the surname.
+- Added a closed-by-default right-edge soundtrack tab. Clicking it slides out a Spotify playlist drawer with the supplied playlist embed; it can be closed with the X, the tab, Escape, or by clicking outside.
+- Drawer is responsive on mobile and respects reduced-motion preferences.
+- No existing Media assets or portfolio sections were changed.

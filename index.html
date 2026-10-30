@@ -238,5 +238,55 @@ At its core, Women2Women is about creating a space where young women can exchang
 </section>
 </main>
 <script src="app.js"></script>
+
+<aside class="soundtrack-drawer" id="soundtrackDrawer" aria-hidden="true" aria-labelledby="soundtrackTitle">
+  <div class="soundtrack-drawer-head">
+    <div>
+      <p class="soundtrack-kicker">CHERRY LINE / PERSONAL PLAYLIST</p>
+      <h2 class="soundtrack-title" id="soundtrackTitle">THE SOUNDTRACK</h2>
+    </div>
+    <button class="soundtrack-close" type="button" aria-label="Close playlist" id="soundtrackClose">×</button>
+  </div>
+  <p class="soundtrack-intro">A little piece of me, one song at a time. Press play and explore the music that feels like me.</p>
+  <iframe
+    class="soundtrack-player"
+    title="Léa's CHERRY LINE Spotify playlist"
+    src="https://open.spotify.com/embed/playlist/45PSIOnguvmqBJL2OVHAmJ?utm_source=generator&theme=0"
+    allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+    loading="lazy">
+  </iframe>
+  <p class="soundtrack-footer">LISTEN WHILE YOU EXPLORE · SPOTIFY</p>
+</aside>
+<button class="soundtrack-tab" id="soundtrackToggle" type="button" aria-controls="soundtrackDrawer" aria-expanded="false">
+  <span class="soundtrack-tab-arrow" aria-hidden="true">‹</span>
+  <span>THE SOUNDTRACK</span>
+</button>
+<script>
+(function () {
+  const toggle = document.getElementById('soundtrackToggle');
+  const drawer = document.getElementById('soundtrackDrawer');
+  const close = document.getElementById('soundtrackClose');
+  if (!toggle || !drawer || !close) return;
+  function setOpen(open) {
+    toggle.setAttribute('aria-expanded', String(open));
+    drawer.classList.toggle('is-open', open);
+    drawer.setAttribute('aria-hidden', String(!open));
+  }
+  toggle.addEventListener('click', function () {
+    setOpen(toggle.getAttribute('aria-expanded') !== 'true');
+  });
+  close.addEventListener('click', function () { setOpen(false); toggle.focus(); });
+  document.addEventListener('keydown', function (event) {
+    if (event.key === 'Escape' && toggle.getAttribute('aria-expanded') === 'true') {
+      setOpen(false); toggle.focus();
+    }
+  });
+  document.addEventListener('click', function (event) {
+    if (toggle.getAttribute('aria-expanded') === 'true' &&
+        !drawer.contains(event.target) && !toggle.contains(event.target)) setOpen(false);
+  });
+})();
+</script>
+
 </body>
 </html>

@@ -4612,3 +4612,150 @@ video:-webkit-full-screen {
 #work .content-carousel-instagram:not(.is-active) .youtube-embed-frame {
   visibility: hidden !important;
 }
+
+
+/* CHERRY LINE V5 — hero portrait breathing room */
+@media (min-width: 800px) {
+  .hero-main-row > .hero-visual {
+    transform: translateX(5mm) !important;
+  }
+}
+
+/* THE SOUNDTRACK — discreet slide-out Spotify drawer */
+.soundtrack-tab {
+  position: fixed;
+  z-index: 10020;
+  top: 50%;
+  right: 0;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 42px;
+  min-height: 132px;
+  padding: 13px 9px;
+  border: 1px solid rgba(255,255,255,.35);
+  border-right: 0;
+  border-radius: 9px 0 0 9px;
+  background: #660000;
+  color: #fff;
+  cursor: pointer;
+  box-shadow: 0 8px 28px rgba(0,0,0,.22);
+  writing-mode: vertical-rl;
+  font: 600 9px/1 "IBM Plex Mono", monospace;
+  letter-spacing: .19em;
+  transition: right .42s cubic-bezier(.22,.61,.36,1), background .2s ease;
+}
+.soundtrack-tab:hover { background: #4a0000; }
+.soundtrack-tab .soundtrack-tab-arrow {
+  font: 18px/1 Arial,sans-serif;
+  letter-spacing: 0;
+  writing-mode: horizontal-tb;
+  transform: rotate(180deg);
+  transition: transform .35s ease;
+}
+.soundtrack-tab[aria-expanded="true"] { right: min(370px, calc(100vw - 42px)); }
+.soundtrack-tab[aria-expanded="true"] .soundtrack-tab-arrow { transform: rotate(0deg); }
+
+.soundtrack-drawer {
+  position: fixed;
+  z-index: 10019;
+  top: 50%;
+  right: 0;
+  width: min(370px, calc(100vw - 42px));
+  max-height: min(560px, calc(100vh - 36px));
+  overflow: auto;
+  box-sizing: border-box;
+  padding: 25px 22px 22px;
+  color: #f4f0e9;
+  background: #160f12;
+  border: 1px solid rgba(255,255,255,.16);
+  border-right: 0;
+  border-radius: 14px 0 0 14px;
+  box-shadow: 0 18px 60px rgba(0,0,0,.35);
+  transform: translate(105%, -50%);
+  visibility: hidden;
+  opacity: 0;
+  transition: transform .42s cubic-bezier(.22,.61,.36,1), opacity .3s ease, visibility .42s;
+}
+.soundtrack-drawer.is-open {
+  transform: translate(0, -50%);
+  visibility: visible;
+  opacity: 1;
+}
+.soundtrack-drawer-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 15px;
+}
+.soundtrack-kicker {
+  margin: 0 0 7px;
+  color: #c9a9a9;
+  font: 500 9px/1.4 "IBM Plex Mono", monospace;
+  letter-spacing: .18em;
+}
+.soundtrack-title {
+  margin: 0;
+  color: #f4f0e9;
+  font: 600 22px/1.05 "Space Grotesk", Arial,sans-serif;
+  letter-spacing: -.04em;
+}
+.soundtrack-intro {
+  margin: 10px 0 17px;
+  color: rgba(244,240,233,.72);
+  font: 12px/1.55 "Helvetica Neue",Arial,sans-serif;
+}
+.soundtrack-close {
+  display: grid;
+  place-items: center;
+  flex: 0 0 30px;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 1px solid rgba(255,255,255,.25);
+  border-radius: 50%;
+  background: transparent;
+  color: #f4f0e9;
+  cursor: pointer;
+  font-size: 18px;
+}
+.soundtrack-player {
+  display: block;
+  width: 100%;
+  height: 352px;
+  border: 0;
+  border-radius: 12px;
+  background: #1d1518;
+}
+.soundtrack-footer {
+  margin: 12px 0 0;
+  color: rgba(244,240,233,.45);
+  font: 8px/1.5 "IBM Plex Mono",monospace;
+  letter-spacing: .13em;
+}
+@media (max-width: 520px) {
+  .soundtrack-tab {
+    top: auto;
+    bottom: 22%;
+    min-height: 112px;
+    width: 36px;
+    padding: 10px 7px;
+    font-size: 8px;
+  }
+  .soundtrack-tab[aria-expanded="true"] { right: calc(100vw - min(350px, calc(100vw - 36px))); }
+  .soundtrack-drawer {
+    top: 50%;
+    width: min(350px, calc(100vw - 36px));
+    max-height: calc(100svh - 28px);
+    padding: 20px 16px 17px;
+  }
+  .soundtrack-player { height: 352px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .soundtrack-tab, .soundtrack-tab .soundtrack-tab-arrow, .soundtrack-drawer {
+    transition: none !important;
+  }
+}
