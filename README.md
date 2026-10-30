@@ -1,16 +1,11 @@
-# CHERRY LINE — Carousel controls refinement
+# CHERRY LINE — urgent media and Hero fix
 
-This package keeps the three-media carousel design and changes only video playback controls and navigation styling.
+Replace only `index.html`, `app.js`, and `styles.css` in the existing GitHub repository. Keep the existing `Media/` folder untouched.
 
-## Changes
-- Removed the custom `ACTIVATE SOUND` / `OPEN VIDEO WITH SOUND` overlay buttons.
-- Local videos use native browser controls, with sound enabled and no autoplay. Visitors can play, pause, seek, and adjust volume using the standard controls.
-- YouTube embeds use their built-in controls and do not autoplay. Instagram embeds no longer have a custom overlay link on top of the media.
-- Carousel navigation arrows use a motorsport-inspired dark-cherry treatment and sit outside the media area on desktop; on smaller screens they remain at the outer edges of the carousel.
-- Preserves the three-media layout and natural media aspect ratios.
+Changes:
+- Sport/School carousel adds only static files that actually exist in the published `Media/` folder, preventing missing paths from becoming broken slides.
+- Sport Content 7 tries common exact-case filename variants for `.mov` and `.mp4`; the expected original `Media/Sportcontent7.mov` remains first.
+- Media decoding errors now report a browser playback issue rather than falsely claiming the file is missing.
+- A reload explicitly returns the page to the Hero/top position and clears a retained hash.
 
-## Install
-Replace `index.html`, `styles.css`, and `app.js` in the existing GitHub repository. Keep the existing `Media/` folder unchanged.
-
-## Validation
-`app.js` passes `node --check` and the ZIP archive passes `unzip -t`. Browser playback and final responsive layout should still be checked on the published GitHub Pages site.
+After publishing, hard-refresh with Cmd+Shift+R. If Sport Content 7 still does not appear, the filename or file itself in the repository differs from the candidates; confirm the exact spelling in GitHub.

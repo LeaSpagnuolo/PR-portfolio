@@ -9,6 +9,21 @@
 <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;family=Helvetica+Neue&amp;display=swap" rel="stylesheet"/>
 <link href="styles.css" rel="stylesheet"/>
+<script>
+(function(){
+  try { if ('scrollRestoration' in history) history.scrollRestoration = 'manual'; } catch(e) {}
+  try { if (location.hash) history.replaceState(null, '', location.pathname + location.search); } catch(e) {}
+  function returnToHero(){
+    document.documentElement.style.scrollBehavior='auto';
+    document.body && (document.body.style.scrollBehavior='auto');
+    window.scrollTo(0,0);
+    document.documentElement.scrollTop=0;
+    if(document.body) document.body.scrollTop=0;
+  }
+  window.addEventListener('pageshow', returnToHero);
+  window.addEventListener('load', function(){ returnToHero(); requestAnimationFrame(returnToHero); setTimeout(returnToHero,80); setTimeout(returnToHero,300); });
+})();
+</script>
 </head>
 <body>
 <div aria-hidden="true" class="checker-rail"></div>

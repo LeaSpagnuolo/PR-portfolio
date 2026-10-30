@@ -739,11 +739,27 @@ async function renderContentCarousel(box, metaItems, sectionKey){
       if(file)entries.push({key:`managed:${meta.id}`,meta:{...meta,format:"Original",customRatio:""},file,src:file.legacy?file.src:null});
     }catch(err){console.error("CHERRY LINE content carousel media read error",sectionKey,meta.id,err)}
   }
+  // Resolve files against the published Media/ directory before adding slides.
+  // This prevents broken paths from becoming visible "MEDIA UNAVAILABLE" cards.
+  async function findPublishedMedia(path){
+    const candidates=[path];
+    const file=path.split("/").pop();
+    if(sectionKey==="sport1" && /sportcontent7/i.test(file)){
+      ["Sportcontent7.mov","SportContent7.mov","sportcontent7.mov","Sportcontent7.mp4","SportContent7.mp4","sportcontent7.mp4"].forEach(name=>candidates.push("Media/"+name));
+    }
+    for(const candidate of [...new Set(candidates)]){
+      try{
+        const response=await fetch(candidate,{method:"HEAD",cache:"no-store"});
+        if(response.ok)return candidate;
+      }catch(error){/* Try the next exact-case candidate. */}
+    }
+    return null;
+  }
   for(const path of staticPaths){
-    const isVideo=/\.(mp4|mov|webm|m4v)$/i.test(path);
-    // Do not pre-filter using a metadata probe: Safari can fail the probe for a
-    // valid .mov before playback, which used to silently remove Sport Content 7.
-    entries.push({key:`path:${path.toLowerCase()}`,path,isVideo,meta:{format:"Original",customRatio:""}});
+    const resolved=await findPublishedMedia(path);
+    if(!resolved)continue;
+    const isVideo=/\.(mp4|mov|webm|m4v)$/i.test(resolved);
+    entries.push({key:`path:${resolved.toLowerCase()}`,path:resolved,isVideo,meta:{format:"Original",customRatio:""}});
   }
   // Hosted social media are additional slides, never replacements for local files.
   for(const h of hosted){
@@ -795,11 +811,11 @@ async function renderContentCarousel(box, metaItems, sectionKey){
         const video=document.createElement("video");video.src=src||entry.path;video.playsInline=true;video.preload="metadata";video.loop=false;video.controls=true;video.muted=false;video.defaultMuted=false;video.setAttribute("playsinline","");video.setAttribute("controls","");
         video.addEventListener("loadedmetadata",()=>sizeFrame(frame,video.videoWidth,video.videoHeight),{once:true});
         video.addEventListener("loadeddata",()=>{if(i!==index)video.pause();},{once:true});
-        video.addEventListener("error",()=>{frame.classList.add("content-carousel-media-error");video.remove();frame.textContent="MEDIA UNAVAILABLE";},{once:true});
+        video.addEventListener("error",()=>{frame.classList.add("content-carousel-media-error");video.remove();frame.textContent="MEDIA COULD NOT BE PLAYED IN THIS BROWSER";},{once:true});
         frame.appendChild(video);
       }else{
         const img=document.createElement("img");img.alt=`${sectionKey==="sport1"?"Sport":"School"} content ${i+1}`;img.loading="lazy";img.src=src||entry.path;
-        img.addEventListener("load",()=>sizeFrame(frame,img.naturalWidth,img.naturalHeight),{once:true});img.addEventListener("error",()=>{frame.classList.add("content-carousel-media-error");img.remove();frame.textContent="MEDIA UNAVAILABLE";},{once:true});frame.appendChild(img);
+        img.addEventListener("load",()=>sizeFrame(frame,img.naturalWidth,img.naturalHeight),{once:true});img.addEventListener("error",()=>{frame.classList.add("content-carousel-media-error");img.remove();frame.textContent="MEDIA COULD NOT BE PLAYED IN THIS BROWSER";},{once:true});frame.appendChild(img);
       }
     }
     track.appendChild(frame);slides.push(frame);
