@@ -4920,3 +4920,16 @@ body.gallery-lightbox-open { overflow:hidden !important; }
 .photo-gallery .gallery-slide video {
   background: transparent !important;
 }
+
+
+/* CV download link — secondary action, matching the existing contact CTA. */
+#contact .contact-cta.cv-download {
+  margin-top: 12px !important;
+  background: transparent !important;
+  color: var(--cream) !important;
+  border-color: rgba(244,240,233,.58) !important;
+}
+#contact .contact-cta.cv-download:hover {
+  background: var(--cream) !important;
+  color: var(--black) !important;
+}

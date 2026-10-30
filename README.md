@@ -57,3 +57,7 @@ After publishing, hard-refresh with Cmd+Shift+R. If Sport Content 7 still does n
 - Replaced the horizontal slide transition with a simple, smooth opacity crossfade.
 - Removed the transform/slide movement and made the gallery background transparent to avoid a black interstitial between photos.
 - Kept manual arrows, enlarge/lightbox controls, and automatic rotation.
+
+
+## CV download
+- `CV_Lea_Spagnuolo.pdf` is linked from the Contact section via the “DOWNLOAD MY CV” link. Keep this PDF at the repository root alongside `index.html`.
