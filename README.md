@@ -9,3 +9,10 @@ Changes:
 - A reload explicitly returns the page to the Hero/top position and clears a retained hash.
 
 After publishing, hard-refresh with Cmd+Shift+R. If Sport Content 7 still does not appear, the filename or file itself in the repository differs from the candidates; confirm the exact spelling in GitHub.
+
+
+## Final polish (30 October 2026)
+- Desktop Hero fills exactly one viewport so the About section does not peek into view.
+- Native fullscreen videos preserve their intrinsic aspect ratio, including portrait 9:16 videos.
+- Sport Content and School Content descriptions remain on one line; long lines can be scrolled horizontally without truncating the text.
+- Motorsport photo galleries advance automatically every 3.8 seconds, matching the About carousel timing. Manual arrows/dots reset the timer.
