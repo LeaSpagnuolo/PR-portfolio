@@ -4882,3 +4882,41 @@ body.gallery-lightbox-open { overflow:hidden !important; }
 @media (prefers-reduced-motion:reduce) {
   .photo-gallery .gallery-slide,.gallery-lightbox { transition:none !important; }
 }
+
+
+/* CHERRY LINE V7 — clean crossfade for Motorsport galleries, with no black interstitial */
+.photo-gallery {
+  background: transparent !important;
+}
+.photo-gallery .gallery-track {
+  position: relative !important;
+  isolation: isolate;
+  background: transparent !important;
+}
+.photo-gallery .gallery-slide {
+  inset: 0 !important;
+  opacity: 0 !important;
+  transform: none !important;
+  transition: opacity .72s ease-in-out !important;
+  z-index: 1 !important;
+  pointer-events: none;
+  background: transparent !important;
+}
+.photo-gallery .gallery-slide.active {
+  opacity: 1 !important;
+  transform: none !important;
+  z-index: 2 !important;
+  pointer-events: auto;
+}
+/* Keep the outgoing slide visible underneath while the incoming one fades in.
+   The gallery itself never switches to a blank/black frame between images. */
+.photo-gallery .gallery-slide.gallery-before,
+.photo-gallery .gallery-slide.gallery-after {
+  opacity: 0 !important;
+  transform: none !important;
+  z-index: 1 !important;
+}
+.photo-gallery .gallery-slide img,
+.photo-gallery .gallery-slide video {
+  background: transparent !important;
+}

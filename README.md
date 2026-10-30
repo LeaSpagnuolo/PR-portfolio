@@ -51,3 +51,9 @@ After publishing, hard-refresh with Cmd+Shift+R. If Sport Content 7 still does n
 - Added a dedicated expand control and click-to-enlarge for photos. Video items open in a larger modal player with controls.
 - Replaced the previous fade/scale change with a horizontal sliding transition.
 - The soundtrack drawer and all existing media paths remain unchanged.
+
+
+## CHERRY LINE V7 — Motorsport crossfade
+- Replaced the horizontal slide transition with a simple, smooth opacity crossfade.
+- Removed the transform/slide movement and made the gallery background transparent to avoid a black interstitial between photos.
+- Kept manual arrows, enlarge/lightbox controls, and automatic rotation.
